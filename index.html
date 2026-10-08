@@ -168,8 +168,7 @@ const OWNER = "MARÍA";
 const START = "2026-10-12";      // lunes, semana 1
 const WEEKS = 12;
 const PRE = {                     // semana 0 · arranque
-  "2026-10-07": "tour", "2026-10-08": "tour", "2026-10-09": "crossfit",
-  "2026-10-10": "caminar", "2026-10-11": "notrain"
+  "2026-10-08": "T1", "2026-10-09": "crossfit", "2026-10-10": "caminar", "2026-10-11": "caminar"
 };
 const POLAR_ID = "8034e007-b5e5-463d-bb19-13dcebc363d8";
 const REDIRECT = "https://felipehernandezlopez.github.io/hybrid-maria/";
@@ -179,9 +178,8 @@ const DF = ["Lunes","Martes","Miércoles","Jueves","Viernes","Sábado","Domingo"
 const MN = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
 const PHASE = ["", "Aprender", "Construir", "Crecer"];
 const PHASE_SUB = ["", "Técnica primero, pesos ligeros", "Más series, sube el peso poco a poco", "Peso libre y más carga controlada"];
-const TRAIN_DAYS = [0, 1, 2, 4];  // lunes, martes, miércoles, viernes
-const BACKUP_DAY = 5;             // sábado de respaldo
-const NO_TRAIN = [3, 6];          // jueves por la mañana y domingo
+// Semana flexible: 4 sesiones cuando ella pueda, cualquier día. Puede ir más veces (sesión extra).
+const GOAL = 4;
 
 // 52,2 kg · 165 cm · 21 años · ganar músculo
 const NUT = { p: 95, kTrain: 2200, kRest: 2000 };
@@ -206,9 +204,9 @@ const EX = {
   goblet:   { n: "Sentadilla goblet a cajón", g: "Pierna", kg: true, per: "mancuerna", c: ["Mancuerna pegada al pecho, sujeta con las dos manos por la cabeza.", "Pies al ancho de hombros, siéntate atrás hasta tocar el cajón.", "Sube empujando el suelo, rodillas en la línea de los pies.", "Bajada lenta: 3 segundos."], k: "Muñeca: sujeta la mancuerna por la cabeza con las palmas hacia arriba, sin doblar la muñeca. Hiperlaxitud: no bloquees las rodillas arriba." },
   stepup:   { n: "Subida al cajón", g: "Pierna", kg: true, per: "mano", c: ["Cajón bajo (30-40 cm), mancuernas ligeras a los lados.", "Sube con toda la planta del pie apoyada, empujando con el talón.", "Baja lento con la misma pierna."], k: "Empieza sin peso hasta que se sienta estable." },
   bridge:   { n: "Puente de glúteo con mancuerna", g: "Glúteo", kg: true, per: "mancuerna", c: ["Espalda en el suelo, mancuerna sobre la cadera.", "Sube la cadera apretando glúteos 2 segundos arriba.", "Baja controlado sin arquear la espalda."], k: "Coxis: apoya sobre una colchoneta doble. Si molesta, pasa al hip thrust con la espalda en el banco." },
-  hipthrust:{ n: "Hip thrust en banco", g: "Glúteo", kg: true, c: ["Parte alta de la espalda apoyada en el banco, pies firmes.", "Barra de 15 kg con almohadilla (o mancuerna) sobre la cadera.", "Sube hasta que el cuerpo quede recto de rodillas a hombros, aprieta glúteos y baja lento."], k: "La espalda apoyada en el banco evita presión en el coxis." },
+  hipthrust:{ n: "Hip thrust", g: "Glúteo", kg: true, c: ["Parte alta de la espalda apoyada en el banco, pies firmes.", "Fase 1: mancuerna sobre la cadera. Fase 2: barra de 15 kg con almohadilla.", "Sube hasta que el cuerpo quede recto de rodillas a hombros, aprieta glúteos y baja lento."], k: "La espalda apoyada en el banco evita presión en el coxis." },
   rdl:      { n: "Peso muerto rumano con mancuernas", g: "Glúteo", kg: true, per: "mano", c: ["Mancuernas frente a los muslos, rodillas ligeramente dobladas.", "Lleva la cadera atrás con la espalda recta hasta sentir el estiramiento atrás del muslo.", "Sube apretando glúteos."], k: "Escoliosis: espejo de lado para ver la espalda recta. Rango corto al principio: hasta la rodilla." },
-  rlunge:   { n: "Zancada hacia atrás", g: "Pierna", kg: true, per: "mano", c: ["Una mano en el rack para equilibrio (fase 1).", "Paso largo atrás, baja hasta que la rodilla de atrás casi toque.", "Sube empujando con el talón de adelante."], k: "Sin peso hasta dominar el equilibrio." },
+  rlunge:   { n: "Estocada hacia atrás", g: "Pierna", kg: true, per: "mano", c: ["Una mano en el rack para equilibrio (fase 1).", "Paso largo atrás, baja hasta que la rodilla de atrás casi toque.", "Sube empujando con el talón de adelante."], k: "Sin peso hasta dominar el equilibrio." },
   sbridge:  { n: "Puente a una pierna", g: "Glúteo", c: ["Un pie apoyado y la otra pierna arriba.", "Sube la cadera sin que se incline hacia un lado.", "Baja lento."], k: "Bueno para equilibrar los dos lados del cuerpo (escoliosis)." },
   sledpull: { n: "Arrastre de trineo hacia atrás", g: "Pierna", kg: true, c: ["Agarra la cuerda o cinta con los brazos estirados.", "Camina hacia atrás con pasos cortos y cadera baja.", "Pecho arriba, sin tirar con la espalda."] },
   lateral:  { n: "Caminata lateral con banda", g: "Glúteo", c: ["Banda mini sobre las rodillas, rodillas un poco dobladas.", "Pasos laterales sin que las rodillas se junten."] },
@@ -226,7 +224,7 @@ const EX = {
   pallof:   { n: "Pallof press con banda", g: "Core", c: ["De lado al anclaje, banda a la altura del pecho.", "Empuja las manos al frente y aguanta 2 segundos sin girar el tronco."], k: "Core anti-rotación: de lo mejor para la escoliosis." },
   deadbug:  { n: "Bicho muerto", g: "Core", c: ["Boca arriba, brazos al techo y rodillas a 90°.", "Baja brazo y pierna contrarios sin despegar la espalda baja del suelo.", "Lento y respirando."], k: "Reemplaza a los abdominales sentada (protege el coxis)." },
   birddog:  { n: "Bird dog", g: "Core", c: ["En cuatro apoyos, estira brazo y pierna contrarios.", "Cadera quieta, aguanta 2 segundos y cambia."], k: "Muñeca: apóyate sobre los puños cerrados o sobre mancuernas, no con la palma doblada." },
-  farmer:   { n: "Caminata del granjero", g: "Core", kg: true, per: "mano", c: ["Una mancuerna o kettlebell en cada mano.", "Hombros atrás y abajo, camina erguida con pasos cortos."], k: "Si la muñeca molesta, usa correas o quítalo ese día." },
+  farmer:   { n: "Paseo del granjero", g: "Core", kg: true, per: "mano", c: ["Una mancuerna o kettlebell en cada mano.", "Hombros atrás y abajo, camina erguida con pasos cortos."], k: "Si la muñeca molesta, usa correas o quítalo ese día." },
   legpress: { n: "Prensa de piernas", g: "Pierna", kg: true, c: ["Espalda y cadera bien apoyadas en el respaldo.", "Pies al ancho de hombros en el centro de la plataforma.", "Baja hasta 90° de rodilla y empuja con toda la planta del pie.", "Arriba no bloquees las rodillas."], k: "Coxis y espalda: no bajes tanto que la cadera se despegue del asiento. Hiperlaxitud: rodillas siempre un poco dobladas arriba." },
   legext:   { n: "Extensión de cuádriceps", g: "Pierna", kg: true, c: ["Rodilla alineada con el eje de la máquina.", "Estira las piernas apretando el cuádriceps 1 segundo arriba.", "Baja en 3 segundos."], k: "Hiperlaxitud: no estires de golpe ni bloquees; para justo antes de la extensión total." },
   legcurl:  { n: "Curl femoral en máquina", g: "Pierna", kg: true, c: ["Ajusta el rodillo justo encima del talón.", "Flexiona llevando los talones hacia el glúteo.", "Vuelve lento en 3 segundos."], k: "Si es la versión sentada y el coxis molesta, usa la máquina acostada." },
@@ -242,47 +240,59 @@ const EX = {
   cablecurl:{ n: "Curl en polea con cuerda", g: "Brazos", kg: true, c: ["Polea baja, cuerda con palmas enfrentadas.", "Codos pegados, sube y baja lento."], k: "Agarre martillo: el más cómodo para la muñeca." },
   cfacepull:{ n: "Face pull en polea", g: "Espalda", kg: true, c: ["Polea a la altura de la cara, cuerda.", "Tira hacia la frente separando las manos.", "Ligero y controlado."] },
   cpallof:  { n: "Pallof press en polea", g: "Core", kg: true, c: ["De lado a la polea, a la altura del pecho.", "Empuja al frente y aguanta 2 segundos sin girar el tronco."], k: "Core anti-rotación: de lo mejor para la escoliosis." },
+  dbrow:    { n: "Remo a una mano en banco", g: "Espalda", kg: true, per: "mano", c: ["Una rodilla y una mano en el banco, espalda plana.", "Mancuerna colgando, agarre neutro.", "Lleva el codo hacia la cadera y baja lento.", "Haz todas las repeticiones de un lado y cambia."], k: "Si la mano de apoyo molesta, apóyate sobre el puño o el antebrazo. Un lado a la vez: bueno para la escoliosis." },
+  incdb:    { n: "Press inclinado con mancuernas", g: "Torso", kg: true, per: "mano", c: ["Banco a 30°, mancuernas sobre el pecho con las palmas enfrentadas.", "Baja hasta los costados del pecho y empuja arriba.", "Sin bloquear los codos."], k: "Agarre neutro y muñeca recta." },
+  split:    { n: "Sentadilla split", g: "Pierna", kg: true, per: "mano", c: ["Un pie adelante y otro atrás, como un paso largo, quieta en el sitio.", "Baja recto hasta que la rodilla de atrás casi toque el suelo.", "Sube empujando con el pie de adelante.", "Todas las repeticiones de un lado y cambia."], k: "Una mano en el rack para el equilibrio al principio. Sin peso hasta que se sienta estable." },
+  bulg:     { n: "Sentadilla búlgara", g: "Pierna", kg: true, per: "mano", c: ["Empeine de atrás apoyado en un banco.", "Baja recto con el peso en la pierna de adelante.", "Sube empujando con el talón de adelante."], k: "Empieza sin peso. Hiperlaxitud: rodilla de adelante alineada con el pie, sin que se vaya hacia dentro." },
+  rdlbb:    { n: "Peso muerto rumano con barra", g: "Glúteo", kg: true, c: ["Barra de 15 kg pegada a los muslos, agarre al ancho de hombros.", "Lleva la cadera atrás con la espalda recta; la barra baja rozando las piernas.", "Sube apretando glúteos."], k: "Solo cuando el rumano con mancuernas salga perfecto. Espejo de lado; para antes de que la espalda se curve." },
+  bsquat:   { n: "Sentadilla con barra a cajón", g: "Pierna", kg: true, c: ["Barra de 15 kg sobre la parte alta de la espalda.", "Siéntate atrás hasta tocar el cajón y sube empujando el suelo.", "Pecho arriba, rodillas en la línea de los pies."], k: "Solo si el coach ve la técnica muy bien (escoliosis). Si no, sigue con la goblet. Muñeca: manos más abiertas en la barra." },
   walk:     { n: "Caminata inclinada en cinta", g: "Cardio", c: ["Inclinación 8-10%, velocidad cómoda.", "Sin agarrarte de la barra."] }
 };
 
-// Las 4 sesiones de la semana. Cada ejercicio: [clave, series×reps por fase 1/2/3, nota]
-// Las 4 sesiones. Cada ejercicio: [clave, series×reps por fase 1/2/3, nota, fase desde la que aparece]
-// Fase 1 casi todo en máquinas (guían el movimiento); en las fases 2 y 3 entra el peso libre.
+// Las sesiones. Cada ejercicio: [clave, series×reps por fase 1/2/3]. Vacío = no aparece en esa fase.
+// Fase 1 solo básicos (técnica). Fase 2 sube el peso y entra 1 accesorio. Fase 3 barra y más trabajo enfocado.
 const KEYS = {
-  A: { n: "Pierna A", sub: "Cuádriceps y glúteo · 50 min", warm: "pierna", ex: [
-    ["legpress", ["2-3×12", "3×10-12", "4×8-10"], "Cadera pegada al asiento"],
-    ["goblet", ["", "3×10", "3×8-10"], "Bajada en 3 segundos", 2],
-    ["legext", ["2-3×12", "3×12", "3×10-12"], "Sin bloquear"],
-    ["hipthrustm", ["2-3×12", "3×10-12", "4×8-10"], "Pausa de 2 s arriba"],
-    ["abductor", ["2×15", "3×15", "3×12-15"], ""],
-    ["deadbug", ["2×6/lado", "3×8/lado", "3×10/lado"], ""]] },
-  B: { n: "Torso A", sub: "Pecho, espalda y hombro · 45 min", warm: "torso", ex: [
-    ["chestpress", ["2-3×12", "3×10-12", "3×8-10"], "Agarre neutro"],
-    ["latpull", ["2-3×12", "3×10-12", "4×8-10"], "Agarre neutro"],
-    ["shpress", ["2×12", "3×10", "3×8-10"], "Con cojín"],
-    ["rowmach", ["2×12", "3×12", "3×10"], ""],
-    ["cablelat", ["2×12", "3×12", "3×12-15"], "Ligero"],
-    ["sideplank", ["2×15 s/lado", "3×20 s/lado", "3×30 s/lado"], ""]] },
-  C: { n: "Pierna B", sub: "Glúteo e isquios · 50 min", warm: "pierna", ex: [
-    ["hipthrustm", ["2-3×12", "3×10-12", "", 1], "Pausa arriba"],
-    ["hipthrust", ["", "", "4×8-10"], "Barra con almohadilla, espalda en el banco", 3],
-    ["rdl", ["", "3×10", "3×8-10"], "Espalda recta", 2],
-    ["legcurl", ["2-3×12", "3×10-12", "3×10-12"], "Bajada lenta"],
-    ["kickback", ["2×12/pierna", "3×12/pierna", "3×12/pierna"], ""],
-    ["stepup", ["2×8/pierna", "3×10/pierna", "3×10/pierna"], "Sin peso al principio"],
-    ["birddog", ["2×6/lado", "3×8/lado", "3×10/lado"], "Sobre los puños"]] },
-  D: { n: "Torso B", sub: "Espalda, brazos y core · 45 min", warm: "torso", ex: [
-    ["rowmach", ["2-3×12", "3×10-12", "4×8-10"], "Pecho apoyado"],
-    ["chestpress", ["2×12", "3×10-12", "", 1], ""],
-    ["dbbench", ["", "", "3×8-10"], "Agarre neutro", 3],
-    ["latpull", ["2×12", "3×12", "3×10"], ""],
-    ["cfacepull", ["2×15", "3×15", "3×15"], "Ligero"],
-    ["cablecurl", ["2×12", "3×10-12", "3×10-12"], ""],
-    ["pushdown", ["2×12", "3×12", "3×12"], ""],
-    ["cpallof", ["2×10/lado", "3×10/lado", "3×12/lado"], ""]] }
+  T1: { n: "Aprende los básicos · 1", sub: "Pierna · 30 min · técnica y peso de inicio", warm: "pierna", tour: true, ex: [["goblet"], ["hipthrust"], ["rdl"], ["rlunge"]] },
+  T2: { n: "Aprende los básicos · 2", sub: "Torso · 25 min · técnica y peso de inicio", warm: "torso", tour: true, ex: [["dbbench"], ["dbrow"], ["dbpress"], ["latpull"]] },
+  A: { n: "Pierna A", sub: "Sentadilla y glúteo · 40-50 min", warm: "pierna", ex: [
+    ["goblet", ["2-3×10", "3×8-10", ""], "Bajada en 3 segundos"],
+    ["bsquat", ["", "", "3×8"], "Solo con el visto bueno del coach; si no, goblet"],
+    ["hipthrust", ["2-3×12", "3×10", "4×8-10"], "Pausa de 2 s arriba"],
+    ["rlunge", ["2×8/pierna", "3×8/pierna", "3×10/pierna"], "Mano en el rack al principio"],
+    ["stepup", ["2×8/pierna", "3×10/pierna", "3×10/pierna"], "Cajón bajo"],
+    ["legpress", ["", "2×12", "3×10-12"], "Cadera pegada al asiento"],
+    ["abductor", ["", "", "2×15"], ""]] },
+  B: { n: "Torso A", sub: "Empuje · 40 min", warm: "torso", ex: [
+    ["dbbench", ["2-3×10", "3×8-10", "4×8"], "Agarre neutro"],
+    ["dbrow", ["2-3×10/lado", "3×10/lado", "3×8-10/lado"], ""],
+    ["dbpress", ["2×10", "3×8-10", "3×8-10"], "De pie"],
+    ["incpush", ["2×8", "3×8-10", "3×10-12"], "Agarre en barra"],
+    ["cfacepull", ["", "2×15", "3×15"], "Ligero"],
+    ["cablelat", ["", "", "2×12-15"], "Ligero"]] },
+  C: { n: "Pierna B", sub: "Bisagra y glúteo · 40-50 min", warm: "pierna", ex: [
+    ["rdl", ["2-3×10", "3×8-10", ""], "Espalda recta"],
+    ["rdlbb", ["", "", "3×8"], "Espalda recta, barra pegada"],
+    ["hipthrust", ["2-3×12", "3×10", "4×8-10"], "Pausa arriba"],
+    ["split", ["2×8/pierna", "", ""], "Mano en el rack"],
+    ["bulg", ["", "3×8/pierna", "3×10/pierna"], "Sin peso al principio"],
+    ["legcurl", ["", "2×12", "3×10-12"], "Bajada lenta"],
+    ["farmer", ["2×30 m", "3×30 m", "3×40 m"], "Erguida"]] },
+  D: { n: "Torso B", sub: "Tirón · 40 min", warm: "torso", ex: [
+    ["latpull", ["2-3×10", "3×8-10", "4×8-10"], "Agarre neutro"],
+    ["csrow", ["2-3×10", "3×10", "3×8-10"], "Pecho apoyado"],
+    ["incdb", ["2×10", "3×8-10", "3×8-10"], "Agarre neutro"],
+    ["farmer", ["2×30 m", "3×30 m", "3×40 m"], ""],
+    ["cablecurl", ["", "2×12", "3×10-12"], ""],
+    ["pushdown", ["", "", "3×12"], ""]] }
 };
 const KEY_ORDER = ["A", "B", "C", "D"];
-const LEGS = { A: 1, C: 1 };
+const LEGS = { A: 1, C: 1, T1: 1 };
+// semana 1: primero lo que falte de "Aprende los básicos", luego las sesiones normales
+function keysOf(w) {
+  if (w > 0) return KEY_ORDER;
+  const t1 = Object.keys(S.done).some(function (d) { return d < START && S.done[d] === "T1"; });
+  return (t1 ? ["T2"] : ["T1", "T2"]).concat(KEY_ORDER).slice(0, GOAL);
+}
 
 const MOB = {
   pierna: { n: "Calentamiento", t: "8 min", it: [["Caminata en cinta, inclinación suave", "4 min"], ["Círculos de cadera", "10/lado"], ["Puente de glúteo sin peso", "12"], ["Caminata lateral con banda", "10/lado"], ["Sentadilla al cajón sin peso", "8"]] },
@@ -353,65 +363,73 @@ function suggestKg(ex, ds) {
 // ═══════════════════════════════════════════
 function keySession(k, wi, ds) {
   const K = KEYS[k];
+  if (K.tour) return { type: "tour", key: k, t: K.n, sub: K.sub, warm: K.warm, cool: "cool", wi: wi, nut: "train",
+    info: ["Hoy aprendes la técnica: pide al coach o al staff que te mire.", "Haz 2 series de 10 por ejercicio. Busca el peso con el que te salen bien y aún te quedarían unas 3 más.", "Anota ese peso: será tu peso de inicio. Si algo molesta (muñeca, espalda, coxis), no lo fuerces y deja la casilla vacía."],
+    list: K.ex.map(function (e) { return { ex: e[0], sr: "2 × 10 para aprender", note: "" }; }) };
   return { type: "gym", key: k, t: K.n, sub: K.sub, warm: K.warm, cool: "cool", wi: wi, nut: "train",
-    list: K.ex.filter(function (e) { return (e[3] || 1) <= wi.ph && e[1][wi.ph - 1]; }).map(function (e) { return { ex: e[0], sr: rx(e[1], wi), note: e[2] }; }),
+    list: K.ex.filter(function (e) { return e[1][wi.ph - 1]; }).map(function (e) { return { ex: e[0], sr: rx(e[1], wi), note: e[2] }; }),
     finisher: wi.ph >= 2 ? "Final opcional: 8-10 min de caminata inclinada en cinta." : "" };
 }
 function special(kind, ds, wi) {
-  if (kind === "tour") {
-    const all = []; KEY_ORDER.forEach(function (k) { KEYS[k].ex.forEach(function (e) { if (EX[e[0]].kg && (e[3] || 1) === 1 && e[1][0] && all.indexOf(e[0]) < 0) all.push(e[0]); }); });
-    return { type: "tour", t: "Conoce el gym", sub: "Pruebas de carga ligeras · 60 min", warm: "pierna", cool: "cool", wi: null, nut: "train",
-      info: ["Recorre las máquinas de tu plan (pide ayuda al staff para ajustar asientos) y prueba cada una con poco peso.", "Busca el peso con el que haces 12 repeticiones bien hechas y aún te quedarían unas 3 más.", "Anótalo abajo: será tu peso de inicio. Si un ejercicio molesta (muñeca, espalda, coxis), no lo fuerces y deja la casilla vacía."],
-      list: all.map(function (x) { return { ex: x, sr: "1-2 series de prueba × 12", note: "" }; }) };
-  }
   if (kind === "crossfit") return { type: "class", t: "Clase de CrossFit suave", sub: "Muy ligera · aprender y disfrutar", wi: null, nut: "train",
     info: ["Dile al coach que es tu primera clase y que tienes lesión de coxis, escoliosis, articulaciones muy flexibles y dolor de muñeca.", "Nada de apoyar las palmas planas: flexiones en la pared o en una barra; burpees, sin bajar al suelo.", "Nada de abdominales sentada: cámbialos por bicho muerto.", "Pesos muy ligeros o solo la técnica; si algo duele, para.", "La meta de hoy es conocer el ambiente, no cansarte."] };
   if (kind === "caminar") return { type: "rest", t: "Caminata", sub: "30-40 min a ritmo cómodo", wi: null, nut: "rest", info: ["Caminar suave ayuda a recuperar después de los primeros días.", "Come tu proteína: el músculo se construye descansando."] };
-  if (kind === "notrain") return { type: "rest", t: "Descanso", sub: "Día libre", wi: wi, nut: "rest", info: ["Hoy no se entrena.", "Duerme bien y llega a tu proteína del día."] };
-  if (kind === "libre") return { type: "rest", t: "Semana completa", sub: "Las 4 sesiones están hechas", wi: wi, nut: "rest", info: ["Hoy toca descanso o una caminata suave.", "¡Gran semana!"] };
-  return { type: "rest", t: "Descanso", sub: "Recupera", wi: wi, nut: "rest", info: ["Descanso o caminata suave."] };
+  if (kind === "libre") return { type: "rest", t: "Semana completa", sub: "Ya hiciste tus 4 sesiones", wi: wi, nut: "rest", info: ["¡Gran semana! Descansa o, si te provoca, haz una sesión extra."] };
+  return { type: "rest", t: "Descanso", sub: "Recupera", wi: wi, nut: "rest", info: ["Descanso o caminata suave.", "Si hoy sí puedes ir, elige una sesión abajo."] };
 }
 
 // ═══════════════════════════════════════════
-//  SEMANA FLEXIBLE · 4 sesiones en lunes, martes, miércoles y viernes
-//  Si falta alguna, el sábado sirve de respaldo. Jueves y domingo no se entrena.
+//  SEMANA FLEXIBLE · 4 sesiones cuando pueda, cualquier día
+//  Lo que no hizo pasa al día siguiente. Puede ir más veces (sesión extra).
+//  Cuidado: no pierna dos días seguidos; después de 3 días seguidos, sugiere descanso.
 // ═══════════════════════════════════════════
 let _wk = {};
+function trained(ds) { return !!S.done[ds]; }
 function weekPlan(w) {
   if (_wk[w]) return _wk[w];
-  const wi = weekInfo(w), ws = addD(START, w * 7), t = todayS();
+  const wi = weekInfo(w), ws = addD(START, w * 7), t = todayS(), keys = keysOf(w);
   const done = {}, days = [];
   let real = 0;
   for (let d = 0; d < 7; d++) {
     const ds = addD(ws, d), past = ds < t;
-    const pending = KEY_ORDER.filter(function (k) { return !done[k]; });
+    const pending = keys.filter(function (k) { return !done[k]; });
+    const prev = days[d - 1];
+    const legY = prev ? LEGS[prev.key] : LEGS[S.done[addD(ds, -1)]];
+    // racha de días seguidos con entreno (hechos o proyectados)
+    let streak = 0;
+    for (let i = d - 1; i >= 0 && days[i].key; i--) streak++;
+    if (d === 0) for (let i = 1; i <= 3 && trained(addD(ds, -i)); i++) streak++;
     let sug = null, why = "";
-    if (NO_TRAIN.indexOf(d) >= 0) sug = null;
-    else if (d === BACKUP_DAY) { if (pending.length) { sug = pending[0]; why = "Sábado de respaldo: recupera la sesión que faltó."; } }
-    else if (pending.length) {
+    if (pending.length && !past) {
       sug = pending[0];
-      const yest = days[d - 1];
-      if (LEGS[sug] && yest && LEGS[yest.key]) { const alt = pending.filter(function (k) { return !LEGS[k]; })[0]; if (alt) sug = alt; }
+      if (LEGS[sug] && legY) { const alt = pending.filter(function (k) { return !LEGS[k]; })[0]; sug = alt || null; if (!alt) why = "Ayer hiciste pierna: hoy descansa. Si quieres ir, elige una sesión abajo."; }
+      if (sug && streak >= 3) { sug = null; why = "Llevas 3 días seguidos: hoy toca descansar. Si quieres ir, elige una sesión abajo."; }
     }
     const pick = S.dayPick[ds];
-    const want = pick === "rest" ? null : (pick && !done[pick] ? pick : sug);
-    // lo que marcó como hecho (o lo que llegue de Polar si algún día usa reloj)
     let got = S.done[ds] && S.done[ds] !== "extra" ? S.done[ds] : null;
-    if (got && done[got]) got = null;
-    if (!got && !S.done[ds] && (S.acts[ds] || []).some(function (a) { return /WeightTraining|Crossfit|Workout|HighIntensity/.test(a.t); }) && want) got = want;
-    if (got) { done[got] = { real: true }; real++; }
-    let session;
-    if (got) session = keySession(got, wi, ds);
-    else if (want) session = keySession(want, wi, ds);
-    else session = special(NO_TRAIN.indexOf(d) >= 0 ? "notrain" : (pending.length ? "rest" : "libre"), ds, wi);
-    if (!got && want) { if (past) why = "No se marcó como hecha: la sesión pasa a los días que quedan."; session.why = why; }
-    if (!got && want && !past) done[want] = { projected: true };
-    days.push({ ds: ds, session: session, key: got || want, got: got });
+    const want = got || (past || pick === "rest" ? null : pick || sug);
+    let session, extra = false;
+    if (got) {
+      if (done[got] || keys.indexOf(got) < 0) extra = true; else { done[got] = { real: true }; real++; }
+      session = keySession(got, wi, ds);
+    } else if (want) {
+      extra = !!done[want] || keys.indexOf(want) < 0;
+      session = keySession(want, wi, ds);
+      if (!extra && !past) done[want] = { projected: true };
+    } else session = special(pending.length ? "rest" : "libre", ds, wi);
+    if (extra) session.extra = true;
+    if (!got && why) session.why = why;
+    days.push({ ds: ds, session: session, key: want, got: got });
   }
-  return (_wk[w] = { wi: wi, days: days, real: real, doneKeys: Object.keys(done).filter(function (k) { return done[k].real; }) });
+  return (_wk[w] = { wi: wi, keys: keys, days: days, real: real, doneKeys: Object.keys(done).filter(function (k) { return done[k].real; }) });
 }
 function sessionFor(ds) {
-  if (PRE[ds]) return special(PRE[ds], ds, null);
+  if (PRE[ds]) {
+    const t1 = Object.keys(S.done).some(function (d) { return S.done[d] === "T1"; });
+    if (KEYS[PRE[ds]]) return keySession(PRE[ds], null, ds);
+    if (PRE[ds] === "caminar" && !t1 && S.done[ds] !== "extra") { const s = keySession("T1", null, ds); s.why = "Aún no hiciste la parte 1: si puedes, hazla hoy. Si no, la tendrás la próxima semana."; return s; }
+    return special(PRE[ds], ds, null);
+  }
   const wi = posOf(ds); if (!wi) return null;
   return weekPlan(wi.w).days[dow(ds)].session;
 }
@@ -490,7 +508,7 @@ function renderHoy() {
   let h = '<div class="datebar"><button onclick="goto(addD(viewDate,-1))">‹</button><div class="d">' + DF[dow(ds)] + " " + d.getDate() + " " + MN[d.getMonth()] +
     "<small>" + (ds === todayS() ? "HOY" : '<a onclick="goto(todayS())">VOLVER A HOY</a>') + '</small></div><button onclick="goto(addD(viewDate,1))">›</button></div>';
   if (!s) {
-    h += '<div class="hero"><span class="pill">' + (diff(ds, START) < 0 ? "Antes del plan" : "Fuera del ciclo") + '</span><h1>Día libre</h1><p>' + (diff(ds, START) < 0 ? "Tu arranque es el 7-8 de octubre: conoce el gym." : "Ciclo de 12 semanas terminado.") + "</p>" + ART.sky + "</div>" + nutHTML("rest");
+    h += '<div class="hero"><span class="pill">' + (diff(ds, START) < 0 ? "Antes del plan" : "Fuera del ciclo") + '</span><h1>Día libre</h1><p>' + (diff(ds, START) < 0 ? "Tu arranque es el jueves 8 de octubre." : "Ciclo de 12 semanas terminado.") + "</p>" + ART.sky + "</div>" + nutHTML("rest");
     $("p-hoy").innerHTML = h; return;
   }
   const wi = s.wi;
@@ -505,14 +523,15 @@ function renderHoy() {
   }
   if (s.finisher) h += '<p class="sm mu" style="margin:4px 2px 12px">' + s.finisher + "</p>";
   if (s.type === "gym" || s.type === "tour" || s.type === "class") h += doneHTML(s, ds);
-  if (s.type === "gym" && weekOfDay(ds) && ds >= todayS()) h += '<button class="btn2" style="width:100%;margin:-4px 0 12px" onclick="choosePick(\'' + ds + '\')">Prefiero otra sesión hoy</button>';
+  if (s.extra) h += '<div class="knee" style="margin:0 0 12px">Sesión extra: suma a tu progreso, aunque esta semana ya la habías hecho.</div>';
+  if (weekOfDay(ds) && ds >= todayS() && !S.done[ds]) h += '<button class="btn2" style="width:100%;margin:-4px 0 12px" onclick="choosePick(\'' + ds + '\')">' + (s.type === "rest" ? "Quiero entrenar hoy" : "Cambiar sesión") + "</button>";
   if (s.cool) h += mobHTML(s.cool);
   h += bodyHTML(ds) + nutHTML(s.nut);
   $("p-hoy").innerHTML = h;
 }
 function exHTML(e, ds, tour) {
   const x = EX[e.ex], l = (S.logs[ds] || {})[e.ex] || {}, g = suggestKg(e.ex, ds);
-  let right = "<b>" + (tour ? "×12" : e.sr.split("/")[0].split(" ")[0]) + "</b>";
+  let right = "<b>" + (tour ? "×10" : e.sr.split("/")[0].split(" ")[0]) + "</b>";
   let hint = esc(e.sr) + (e.note ? " · " + esc(e.note) : "");
   if (x.kg && !tour) hint += g ? " · " + (g.up ? "¡sube a " + g.kg + " kg!" : "usa " + g.kg + " kg") + (x.per ? " por " + x.per : "") : " · empieza ligero";
   let inputs = "";
@@ -524,16 +543,17 @@ function setKg(ds, ex, v) { const n = parseFloat(String(v).replace(",", ".")); S
 function toggleTop(ds, ex) { S.logs[ds] = S.logs[ds] || {}; const l = S.logs[ds][ex] = S.logs[ds][ex] || {}; l.top = !l.top; save(); renderHoy(); schedPush(); }
 function doneHTML(s, ds) {
   const cur = S.done[ds];
-  const isDone = s.type === "gym" ? cur === s.key : !!cur;
+  const isDone = s.key ? cur === s.key : !!cur;
   if (isDone) return '<div class="strava"><div class="ic" style="background:var(--lime);color:var(--limeInk)">✓</div><div style="flex:1"><b>Sesión hecha</b><div class="sm mu2">¡Bien, María! Esto suma a tu semana.</div></div><a class="sm" onclick="markDone(\'' + ds + "',null)\">Deshacer</a></div>";
-  const k = s.type === "gym" ? s.key : "extra";
+  const k = s.key || "extra";
   return '<button class="btn" style="margin:4px 0 12px" onclick="markDone(\'' + ds + "','" + k + '\')">Marcar sesión como hecha</button>';
 }
 function markDone(ds, k) { if (k) S.done[ds] = k; else delete S.done[ds]; touch(); save(); _wk = {}; render(); schedPush(); if (k) toast("¡Hecho! 💪"); }
 function choosePick(ds) {
   const wp = weekOfDay(ds); if (!wp) return; const cur = S.dayPick[ds];
   let h = '<p class="sm mu" style="margin-bottom:10px">Elige qué quieres hacer hoy. El resto de la semana se reacomoda solo.</p>';
-  KEY_ORDER.forEach(function (k) { const dk = wp.doneKeys.indexOf(k) >= 0; h += '<button class="btn2" style="width:100%;margin-bottom:8px;text-align:left' + (cur === k ? ";outline:1.5px solid var(--lime)" : "") + (dk ? ";opacity:.45" : "") + '" ' + (dk ? "disabled" : 'onclick="setPick(\'' + ds + "','" + k + '\')"') + ">" + KEYS[k].n + (dk ? " · ya hecha" : "") + "</button>"; });
+  const list = wp.keys.concat(KEY_ORDER.filter(function (k) { return wp.keys.indexOf(k) < 0; }));
+  list.forEach(function (k) { const dk = wp.doneKeys.indexOf(k) >= 0 || wp.keys.indexOf(k) < 0; h += '<button class="btn2" style="width:100%;margin-bottom:8px;text-align:left' + (cur === k ? ";outline:1.5px solid var(--lime)" : "") + '" onclick="setPick(\'' + ds + "','" + k + '\')">' + KEYS[k].n + (dk ? ' <span class="mu">· extra</span>' : "") + "</button>"; });
   h += '<button class="btn2" style="width:100%;margin-bottom:8px;text-align:left" onclick="setPick(\'' + ds + '\',\'rest\')">Descanso</button>';
   if (cur) h += '<button class="btn2 r" style="width:100%" onclick="setPick(\'' + ds + '\',null)">Que la app decida</button>';
   openModal("Elegir sesión", h);
@@ -541,8 +561,8 @@ function choosePick(ds) {
 function setPick(ds, k) { if (k) S.dayPick[ds] = k; else delete S.dayPick[ds]; touch(); save(); closeModal(); render(); schedPush(); }
 function weekCardHTML(ds) {
   const wp = weekOfDay(ds); if (!wp) return "";
-  const chips = KEY_ORDER.map(function (k) { const ok = wp.doneKeys.indexOf(k) >= 0; return '<span class="pill ' + (ok ? "l" : "") + '" style="margin:0 4px 4px 0">' + (ok ? "★ " : "") + KEYS[k].n + "</span>"; }).join("");
-  return '<div class="card" style="padding:12px 14px"><div class="row sp"><b>Esta semana</b><span class="sm mu">' + wp.real + ' de 4 sesiones</span></div><div style="margin-top:8px">' + chips + "</div></div>";
+  const chips = wp.keys.map(function (k) { const ok = wp.doneKeys.indexOf(k) >= 0; return '<span class="pill ' + (ok ? "l" : "") + '" style="margin:0 4px 4px 0">' + (ok ? "★ " : "") + (SHORTN[k] || KEYS[k].n) + "</span>"; }).join("");
+  return '<div class="card" style="padding:12px 14px"><div class="row sp"><b>Esta semana</b><span class="sm mu">' + wp.real + " de " + GOAL + ' sesiones · el día que puedas</span></div><div style="margin-top:8px">' + chips + "</div></div>";
 }
 function mobHTML(k) { const m = MOB[k]; return '<details class="list"><summary>' + m.n + "<span>" + m.t + " ▾</span></summary>" + m.it.map(function (i) { return '<div class="li"><span>' + i[0] + "</span><b>" + i[1] + "</b></div>"; }).join("") + "</details>"; }
 function nutHTML(k) {
@@ -571,14 +591,14 @@ function tech(k) {
 // ═══════════════════════════════════════════
 //  PLAN
 // ═══════════════════════════════════════════
-const SHORTN = { A: "Pierna A", B: "Torso A", C: "Pierna B", D: "Torso B" };
-function shortName(s) { if (!s) return "—"; if (s.key) return SHORTN[s.key].replace(" ", ""); if (s.type === "tour") return "Gym"; if (s.type === "class") return "CF"; return "Desc"; }
+const SHORTN = { A: "Pierna A", B: "Torso A", C: "Pierna B", D: "Torso B", T1: "Básicos 1", T2: "Básicos 2" };
+function shortName(s) { if (!s) return "—"; if (s.key) return s.key.charAt(0) === "T" ? "Bás" + s.key.charAt(1) : SHORTN[s.key].replace(" ", ""); if (s.type === "tour") return "Gym"; if (s.type === "class") return "CF"; return "Desc"; }
 function renderPlan() {
   const t = todayS();
   let done = 0; Object.keys(S.done).forEach(function (d) { if (d <= t) done++; });
   const lastB = S.body.length ? S.body[S.body.length - 1] : null;
   let h = '<div class="count"><div class="c l"><b>' + done + '</b><span class="sm mu">sesiones hechas</span></div><div class="c"><b>' + (lastB ? lastB.kg : S.bw) + '</b><span class="sm mu">peso kg</span></div></div>';
-  h += '<div class="phase" style="color:var(--lime)">' + ART.star + '<div class="pt"><span style="color:var(--tx)">Semana 0 · Inicio</span><span class="pm">Conocer el gym · 7-11 oct</span></div></div>' + weekHTML("2026-10-05", null, t);
+  h += '<div class="phase" style="color:var(--lime)">' + ART.star + '<div class="pt"><span style="color:var(--tx)">Semana 0 · Inicio</span><span class="pm">Aprende los básicos · 8-11 oct</span></div></div>' + weekHTML("2026-10-05", null, t);
   let lastPh = 0;
   for (let w = 0; w < WEEKS; w++) {
     const wi = weekInfo(w);
@@ -602,7 +622,8 @@ function weekHTML(ws, wi, t) {
 //  TÉCNICA
 // ═══════════════════════════════════════════
 function renderTec() {
-  const groups = {}; Object.keys(EX).forEach(function (k) { (groups[EX[k].g] = groups[EX[k].g] || []).push(k); });
+  const used = {}; Object.keys(KEYS).forEach(function (k) { KEYS[k].ex.forEach(function (e) { used[e[0]] = 1; }); });
+  const groups = {}; Object.keys(EX).filter(function (k) { return used[k]; }).forEach(function (k) { (groups[EX[k].g] = groups[EX[k].g] || []).push(k); });
   let h = '<div class="knee" style="margin:2px 0 14px">Por tu coxis, escoliosis, articulaciones flexibles y muñeca, cada ejercicio trae un consejo "Para ti". Si algo duele (dolor, no cansancio), para y cámbialo. Lo ideal es que un fisioterapeuta te revise al empezar.</div>';
   ["Pierna", "Glúteo", "Torso", "Espalda", "Brazos", "Core", "Cardio"].forEach(function (g) { if (!groups[g]) return; h += '<div class="sec">' + g + "</div>" + groups[g].map(function (k) { return '<div class="tq" onclick="tech(\'' + k + '\')"><span>' + EX[k].n + '</span><span class="mu">›</span></div>'; }).join(""); });
   $("p-tec").innerHTML = h;
