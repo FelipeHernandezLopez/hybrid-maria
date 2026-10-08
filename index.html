@@ -184,13 +184,13 @@ const GOAL = 4;
 // 52,2 kg · 165 cm · 21 años · ganar músculo
 const NUT = { p: 95, kTrain: 2200, kRest: 2000 };
 
-const DEF = { bw: 52.2, logs: {}, done: {}, body: [], acts: {}, dayPick: {}, conn: "", polar: false, sheetSync: "", lastSync: 0, setAt: 0, dirty: false, pushed: "" };
+const DEF = { bw: 52.2, logs: {}, done: {}, body: [], acts: {}, dayPick: {}, pclass: {}, conn: "", polar: false, sheetSync: "", lastSync: 0, setAt: 0, dirty: false, pushed: "" };
 let S = load();
 let tab = "hoy";
 let viewDate = todayS();
 let openedOn = todayS();
 function load() {
-  try { const p = JSON.parse(localStorage.getItem(LS) || "{}"); const o = Object.assign({}, DEF, p); ["logs", "done", "acts", "dayPick"].forEach(function (k) { o[k] = o[k] || {}; }); o.body = o.body || []; return o; }
+  try { const p = JSON.parse(localStorage.getItem(LS) || "{}"); const o = Object.assign({}, DEF, p); ["logs", "done", "acts", "dayPick", "pclass"].forEach(function (k) { o[k] = o[k] || {}; }); o.body = o.body || []; return o; }
   catch (e) { return JSON.parse(JSON.stringify(DEF)); }
 }
 function save() { try { localStorage.setItem(LS, JSON.stringify(S)); } catch (e) {} }
@@ -215,15 +215,15 @@ const EX = {
   bandpull: { n: "Jalón con banda", g: "Espalda", c: ["Banda anclada arriba en la barra de dominadas.", "De rodillas, tira de la banda hacia el pecho llevando los codos abajo.", "Vuelve controlado."] },
   dbpress:  { n: "Press de hombro de pie (agarre neutro)", g: "Torso", kg: true, per: "mano", c: ["De pie, mancuernas a la altura de los hombros con las palmas enfrentadas.", "Abdomen y glúteos firmes, empuja arriba sin arquear la espalda.", "Baja lento hasta las orejas."], k: "De pie para no presionar el coxis. No bloquees los codos arriba." },
   facepull: { n: "Face pull con banda", g: "Espalda", c: ["Banda a la altura de la cara.", "Tira hacia la frente separando las manos.", "Ligero y controlado: es para la salud del hombro."] },
-  sideplank:{ n: "Plancha lateral en antebrazo", g: "Core", c: ["Apoyada sobre el antebrazo, codo bajo el hombro.", "Cadera alta y cuerpo recto.", "Aguanta el tiempo indicado en cada lado."], k: "En antebrazo, no en la mano: protege la muñeca. Haz los dos lados por igual." },
+  sideplank:{ n: "Side Plank Prep", g: "Pilates", p: "Estabilidad lateral del tronco y del hombro.", es: "Plancha lateral sobre el antebrazo", c: ["Apoyada sobre el antebrazo, codo bajo el hombro.", "Cadera alta y cuerpo recto.", "Aguanta el tiempo indicado en cada lado."], k: "En antebrazo, no en la mano: protege la muñeca. Haz los dos lados por igual." },
   incpush:  { n: "Flexiones inclinadas en barra", g: "Torso", c: ["Barra del rack a la altura de la cadera, manos sobre la barra.", "Cuerpo recto, baja el pecho hasta la barra y empuja.", "Cuando salgan 12 fáciles, baja la barra un agujero."], k: "Agarrar la barra mantiene la muñeca recta (mejor que apoyar la palma en el suelo)." },
   invrow:   { n: "Remo invertido en barra", g: "Espalda", c: ["Barra del rack a la altura del pecho, cuélgate debajo con los pies en el suelo.", "Cuerpo recto, lleva el pecho a la barra.", "Más vertical = más fácil."] },
   ohp1:     { n: "Press a una mano de pie", g: "Torso", kg: true, per: "mano", c: ["Una mancuerna a la altura del hombro, palma hacia dentro.", "Empuja arriba sin inclinarte hacia un lado.", "Cambia de brazo."], k: "Trabajar un lado a la vez ayuda a equilibrar la escoliosis." },
   hammer:   { n: "Curl martillo", g: "Brazos", kg: true, per: "mano", c: ["Mancuernas con las palmas enfrentadas, codos pegados al cuerpo.", "Sube sin balancear y baja en 3 segundos."], k: "El agarre martillo es el más cómodo para la muñeca." },
   bandtri:  { n: "Extensión de tríceps con banda", g: "Brazos", c: ["Banda anclada arriba, codos pegados al cuerpo.", "Estira los brazos hacia abajo y vuelve lento."] },
   pallof:   { n: "Pallof press con banda", g: "Core", c: ["De lado al anclaje, banda a la altura del pecho.", "Empuja las manos al frente y aguanta 2 segundos sin girar el tronco."], k: "Core anti-rotación: de lo mejor para la escoliosis." },
-  deadbug:  { n: "Bicho muerto", g: "Core", c: ["Boca arriba, brazos al techo y rodillas a 90°.", "Baja brazo y pierna contrarios sin despegar la espalda baja del suelo.", "Lento y respirando."], k: "Reemplaza a los abdominales sentada (protege el coxis)." },
-  birddog:  { n: "Bird dog", g: "Core", c: ["En cuatro apoyos, estira brazo y pierna contrarios.", "Cadera quieta, aguanta 2 segundos y cambia."], k: "Muñeca: apóyate sobre los puños cerrados o sobre mancuernas, no con la palma doblada." },
+  deadbug:  { n: "Tabletop Opposite Reach", g: "Pilates", p: "Control del centro mientras brazos y piernas se mueven: la base de todo el repertorio.", es: "Boca arriba en mesa, alternar brazo y pierna contrarios", c: ["Boca arriba, brazos al techo y rodillas a 90°.", "Baja brazo y pierna contrarios sin despegar la espalda baja del suelo.", "Lento y respirando."], k: "Espalda baja apoyada todo el tiempo. Reemplaza a los abdominales sentada (protege el coxis)." },
+  birddog:  { n: "Swimming Prep", g: "Pilates", p: "Estabilidad de columna y cadera en cuadrupedia; prepara el Swimming del repertorio clásico.", es: "En cuadrupedia, extensión alterna de brazo y pierna", c: ["En cuatro apoyos, estira brazo y pierna contrarios.", "Cadera quieta, aguanta 2 segundos y cambia."], k: "Muñeca: apóyate sobre los puños cerrados o sobre mancuernas, no con la palma doblada." },
   farmer:   { n: "Paseo del granjero", g: "Core", kg: true, per: "mano", c: ["Una mancuerna o kettlebell en cada mano.", "Hombros atrás y abajo, camina erguida con pasos cortos."], k: "Si la muñeca molesta, usa correas o quítalo ese día." },
   legpress: { n: "Prensa de piernas", g: "Pierna", kg: true, c: ["Espalda y cadera bien apoyadas en el respaldo.", "Pies al ancho de hombros en el centro de la plataforma.", "Baja hasta 90° de rodilla y empuja con toda la planta del pie.", "Arriba no bloquees las rodillas."], k: "Coxis y espalda: no bajes tanto que la cadera se despegue del asiento. Hiperlaxitud: rodillas siempre un poco dobladas arriba." },
   legext:   { n: "Extensión de cuádriceps", g: "Pierna", kg: true, c: ["Rodilla alineada con el eje de la máquina.", "Estira las piernas apretando el cuádriceps 1 segundo arriba.", "Baja en 3 segundos."], k: "Hiperlaxitud: no estires de golpe ni bloquees; para justo antes de la extensión total." },
@@ -246,6 +246,22 @@ const EX = {
   bulg:     { n: "Sentadilla búlgara", g: "Pierna", kg: true, per: "mano", c: ["Empeine de atrás apoyado en un banco.", "Baja recto con el peso en la pierna de adelante.", "Sube empujando con el talón de adelante."], k: "Empieza sin peso. Hiperlaxitud: rodilla de adelante alineada con el pie, sin que se vaya hacia dentro." },
   rdlbb:    { n: "Peso muerto rumano con barra", g: "Glúteo", kg: true, c: ["Barra de 15 kg pegada a los muslos, agarre al ancho de hombros.", "Lleva la cadera atrás con la espalda recta; la barra baja rozando las piernas.", "Sube apretando glúteos."], k: "Solo cuando el rumano con mancuernas salga perfecto. Espejo de lado; para antes de que la espalda se curve." },
   bsquat:   { n: "Sentadilla con barra a cajón", g: "Pierna", kg: true, c: ["Barra de 15 kg sobre la parte alta de la espalda.", "Siéntate atrás hasta tocar el cajón y sube empujando el suelo.", "Pecho arriba, rodillas en la línea de los pies."], k: "Solo si el coach ve la técnica muy bien (escoliosis). Si no, sigue con la goblet. Muñeca: manos más abiertas en la barra." },
+  breath:   { n: "Breathing", g: "Pilates", es: "Respiración lateral costal", p: "La respiración de pilates: activa el centro y marca el ritmo de cada ejercicio.", c: ["Boca arriba, rodillas dobladas, manos a los lados de las costillas.", "Inhala por la nariz abriendo las costillas hacia los lados.", "Exhala por la boca cerrando las costillas y llevando el ombligo hacia la columna."] },
+  imprint:  { n: "Pelvic Tilt", g: "Pilates", es: "Báscula pélvica: imprint y columna neutra", p: "Aprender a encontrar la columna neutra y el imprint, las dos posiciones base del método.", c: ["Boca arriba, rodillas dobladas, pies al ancho de cadera.", "Exhala y pega suavemente la espalda baja a la colchoneta (imprint).", "Inhala y vuelve a neutro: una pequeña curva natural en la zona lumbar."], k: "Movimiento pequeño y controlado; no empujes con los glúteos." },
+  sbprep:   { n: "Shoulder Bridge Prep", g: "Pilates", es: "Puente articulado, vértebra por vértebra", p: "Movilidad de columna y fuerza de glúteo e isquios.", c: ["Boca arriba, rodillas dobladas, brazos a los lados.", "Exhala y despega la columna desde el coxis, vértebra por vértebra, hasta los omóplatos.", "Inhala arriba y exhala bajando vértebra por vértebra."], k: "Coxis: colchoneta doble. Arriba no arquees: la línea va de rodillas a hombros." },
+  toetaps:  { n: "Toe Taps", g: "Pilates", es: "En mesa, bajar un pie a tocar el suelo y volver", p: "Fuerza abdominal profunda con la pelvis quieta.", c: ["Boca arriba, piernas en mesa (rodillas a 90°).", "Exhala y baja un pie a tocar el suelo sin mover la pelvis.", "Inhala y vuelve. Alterna."], k: "Si la espalda baja se despega, baja menos." },
+  hundred:  { n: "The Hundred", g: "Pilates", es: "Los cien: bombeo de brazos con respiración", p: "El calentamiento clásico del método: resistencia del centro y respiración.", c: ["Fase 1: cabeza apoyada y piernas en mesa.", "Brazos estirados a los lados, bombea arriba y abajo en un rango corto.", "Inhala 5 bombeos y exhala 5 bombeos. Fase 2: cabeza y hombros arriba."], k: "Cuello largo; si molesta, cabeza apoyada siempre." },
+  chestlift:{ n: "Chest Lift", g: "Pilates", es: "Elevación de pecho", p: "Flexión abdominal correcta, preparación del Hundred y del Single Leg Stretch.", c: ["Boca arriba, rodillas dobladas, manos detrás de la cabeza.", "Exhala y sube cabeza y hombros hasta la punta de los omóplatos.", "Inhala arriba y baja lento."] },
+  sls:      { n: "Single Leg Stretch", g: "Pilates", es: "Estiramiento de una pierna", p: "Coordinación y fuerza abdominal; uno de los cinco de la serie abdominal clásica.", c: ["Cabeza y hombros arriba, una rodilla al pecho y la otra pierna estirada en diagonal.", "Cambia de pierna con control, la pelvis quieta.", "Exhala en cada cambio."], k: "Pierna estirada más alta si la espalda baja se despega." },
+  legcircle:{ n: "Single Leg Circles", g: "Pilates", es: "Círculos con una pierna", p: "Movilidad de cadera con la pelvis estable.", c: ["Boca arriba, una pierna estirada hacia el techo y la otra doblada en el suelo.", "Dibuja círculos pequeños con la pierna de arriba, sin mover la pelvis.", "5 en un sentido, 5 en el otro."], k: "Hiperlaxitud: círculos pequeños; el control importa más que el tamaño." },
+  dls:      { n: "Double Leg Stretch", g: "Pilates", es: "Estiramiento de las dos piernas", p: "Fuerza y coordinación del centro.", c: ["Cabeza y hombros arriba, rodillas al pecho.", "Inhala estirando brazos y piernas a la vez.", "Exhala y vuelve abrazando las rodillas."] },
+  criss:    { n: "Criss-Cross", g: "Pilates", es: "Rotación cruzada", p: "Oblicuos y control de la rotación.", c: ["Manos detrás de la cabeza, piernas en mesa.", "Gira el tronco hacia una rodilla mientras la otra pierna se estira.", "Alterna lento."], k: "Escoliosis: haz los dos lados igual de lentos y fíjate si uno cuesta más." },
+  swanprep: { n: "Swan Prep", g: "Pilates", es: "Extensión de espalda boca abajo", p: "Fuerza de los extensores de la espalda: equilibra todo el trabajo de flexión.", c: ["Boca abajo, antebrazos apoyados junto a los hombros.", "Inhala y despega el pecho alargando la columna.", "Exhala y baja."], k: "Sin apoyar las palmas: sobre los antebrazos. Extensión suave, sin aplastar la zona lumbar." },
+  sidekick: { n: "Side Kick Series", g: "Pilates", es: "Serie de patadas de lado", p: "Glúteo medio y estabilidad del tronco de lado.", c: ["De lado, cabeza apoyada sobre el brazo de abajo, cuerpo en línea.", "Lleva la pierna de arriba al frente con dos pulsos y atrás larga.", "El tronco no se mueve."], k: "Cabeza apoyada en el brazo para no cargar la muñeca." },
+  clam:     { n: "Clam", g: "Pilates", es: "La almeja", p: "Glúteo medio y alineación de rodilla.", c: ["De lado, rodillas dobladas, pies juntos.", "Abre la rodilla de arriba sin que la pelvis ruede hacia atrás.", "Cierra lento."] },
+  spinestr: { n: "Spine Stretch Forward", g: "Pilates", es: "Estiramiento de columna hacia adelante", p: "Articulación de la columna y respiración.", c: ["Sentada alta, piernas estiradas abiertas al ancho de la colchoneta.", "Exhala y enrolla la columna hacia adelante desde la cabeza.", "Inhala y vuelve a sentarte alta, vértebra por vértebra."], k: "Coxis: siéntate sobre una toalla doblada o un cojín. Rodillas un poco dobladas si hace falta." },
+  saw:      { n: "Saw", g: "Pilates", es: "La sierra", p: "Rotación y flexión de columna con control.", c: ["Sentada alta, piernas abiertas, brazos a los lados.", "Gira hacia una pierna y estira la mano contraria hacia el pie.", "Vuelve al centro y cambia."], k: "Coxis: cojín. Gira igual hacia los dos lados." },
+  catstr:   { n: "Cat Stretch", g: "Pilates", es: "Gato sobre los puños", p: "Movilidad de la columna en flexión y extensión.", c: ["En cuadrupedia sobre los puños o los antebrazos.", "Exhala y redondea la espalda.", "Inhala y alarga la columna."], k: "Sobre los puños, nunca con la palma doblada." },
   walk:     { n: "Caminata inclinada en cinta", g: "Cardio", c: ["Inclinación 8-10%, velocidad cómoda.", "Sin agarrarte de la barra."] }
 };
 
@@ -285,13 +301,35 @@ const KEYS = {
     ["cablecurl", ["", "2×12", "3×10-12"], ""],
     ["pushdown", ["", "", "3×12"], ""]] }
 };
-const KEY_ORDER = ["A", "B", "C", "D"];
+KEYS.P = { n: "Pilates Mat", sub: "Colchoneta · 30-40 min · en el gym o en casa", pilates: true, ex: [
+    ["breath", ["1×8 respiraciones", "1×8 respiraciones", "1×6 respiraciones"], ""],
+    ["imprint", ["1×10", "1×8", ""], ""],
+    ["hundred", ["1×50 (cabeza apoyada)", "1×100", "1×100"], ""],
+    ["chestlift", ["2×8", "", ""], ""],
+    ["sls", ["", "2×8/lado", "2×10/lado"], ""],
+    ["dls", ["", "", "2×8"], ""],
+    ["toetaps", ["2×8/lado", "2×10/lado", ""], ""],
+    ["deadbug", ["", "2×6/lado", "2×8/lado"], ""],
+    ["criss", ["", "", "2×6/lado"], ""],
+    ["legcircle", ["", "1×5 cada sentido/pierna", "1×5 cada sentido/pierna"], ""],
+    ["sbprep", ["2×8", "2×8", "2×10"], ""],
+    ["birddog", ["2×6/lado", "2×8/lado", "2×10/lado"], "Sobre puños o antebrazos"],
+    ["swanprep", ["2×6", "2×8", "2×8"], ""],
+    ["clam", ["2×12/lado", "2×12/lado", ""], ""],
+    ["sidekick", ["", "2×10/lado", "2×10/lado"], ""],
+    ["sideplank", ["", "", "2×20 s/lado"], ""],
+    ["spinestr", ["1×6", "1×6", "1×6"], ""],
+    ["saw", ["", "", "1×4/lado"], ""],
+    ["catstr", ["1×6", "1×6", "1×6"], ""]] };
+KEYS.P.ex = KEYS.P.ex.filter(function (e) { return EX[e[0]]; });
+const KEY_ORDER = ["A", "B", "C", "D", "P"];
 const LEGS = { A: 1, C: 1, T1: 1 };
 // semana 1: primero lo que falte de "Aprende los básicos", luego las sesiones normales
 function keysOf(w) {
-  if (w > 0) return KEY_ORDER;
+  const wk = ["A", w % 2 ? "D" : "B", "C", "P"];          // torso alterna A/B cada semana
+  if (w > 0) return wk;
   const t1 = Object.keys(S.done).some(function (d) { return d < START && S.done[d] === "T1"; });
-  return (t1 ? ["T2"] : ["T1", "T2"]).concat(KEY_ORDER).slice(0, GOAL);
+  return (t1 ? ["T2", "A", "C", "P"] : ["T1", "T2", "A", "P"]);
 }
 
 const MOB = {
@@ -366,13 +404,16 @@ function keySession(k, wi, ds) {
   if (K.tour) return { type: "tour", key: k, t: K.n, sub: K.sub, warm: K.warm, cool: "cool", wi: wi, nut: "train",
     info: ["Hoy aprendes la técnica: pide al coach o al staff que te mire.", "Haz 2 series de 10 por ejercicio. Busca el peso con el que te salen bien y aún te quedarían unas 3 más.", "Anota ese peso: será tu peso de inicio. Si algo molesta (muñeca, espalda, coxis), no lo fuerces y deja la casilla vacía."],
     list: K.ex.map(function (e) { return { ex: e[0], sr: "2 × 10 para aprender", note: "" }; }) };
+  if (K.pilates) return { type: "gym", key: k, t: K.n, sub: K.sub, wi: wi, nut: "train", pilates: true,
+    info: ["Colchoneta y ropa cómoda. Movimientos lentos y precisos: en pilates cuenta la calidad, no la cantidad.", "Toca cada ejercicio para ver cómo se hace y para qué sirve: aprende el nombre, así lo vas a encontrar en tu formación.", "¿Fuiste a una clase de pilates? Márcala abajo: cuenta como esta sesión."],
+    list: K.ex.filter(function (e) { return e[1][wi.ph - 1]; }).map(function (e) { return { ex: e[0], sr: e[1][wi.ph - 1], note: e[2] }; }) };
   return { type: "gym", key: k, t: K.n, sub: K.sub, warm: K.warm, cool: "cool", wi: wi, nut: "train",
     list: K.ex.filter(function (e) { return e[1][wi.ph - 1]; }).map(function (e) { return { ex: e[0], sr: rx(e[1], wi), note: e[2] }; }),
     finisher: wi.ph >= 2 ? "Final opcional: 8-10 min de caminata inclinada en cinta." : "" };
 }
 function special(kind, ds, wi) {
   if (kind === "crossfit") return { type: "class", t: "Clase de CrossFit suave", sub: "Muy ligera · aprender y disfrutar", wi: null, nut: "train",
-    info: ["Dile al coach que es tu primera clase y que tienes lesión de coxis, escoliosis, articulaciones muy flexibles y dolor de muñeca.", "Nada de apoyar las palmas planas: flexiones en la pared o en una barra; burpees, sin bajar al suelo.", "Nada de abdominales sentada: cámbialos por bicho muerto.", "Pesos muy ligeros o solo la técnica; si algo duele, para.", "La meta de hoy es conocer el ambiente, no cansarte."] };
+    info: ["Dile al coach que es tu primera clase y que tienes lesión de coxis, escoliosis, articulaciones muy flexibles y dolor de muñeca.", "Nada de apoyar las palmas planas: flexiones en la pared o en una barra; burpees, sin bajar al suelo.", "Nada de abdominales sentada: cámbialos por Toe Taps o Tabletop Opposite Reach (boca arriba).", "Pesos muy ligeros o solo la técnica; si algo duele, para.", "La meta de hoy es conocer el ambiente, no cansarte."] };
   if (kind === "caminar") return { type: "rest", t: "Caminata", sub: "30-40 min a ritmo cómodo", wi: null, nut: "rest", info: ["Caminar suave ayuda a recuperar después de los primeros días.", "Come tu proteína: el músculo se construye descansando."] };
   if (kind === "libre") return { type: "rest", t: "Semana completa", sub: "Ya hiciste tus 4 sesiones", wi: wi, nut: "rest", info: ["¡Gran semana! Descansa o, si te provoca, haz una sesión extra."] };
   return { type: "rest", t: "Descanso", sub: "Recupera", wi: wi, nut: "rest", info: ["Descanso o caminata suave.", "Si hoy sí puedes ir, elige una sesión abajo."] };
@@ -544,11 +585,14 @@ function toggleTop(ds, ex) { S.logs[ds] = S.logs[ds] || {}; const l = S.logs[ds]
 function doneHTML(s, ds) {
   const cur = S.done[ds];
   const isDone = s.key ? cur === s.key : !!cur;
-  if (isDone) return '<div class="strava"><div class="ic" style="background:var(--lime);color:var(--limeInk)">✓</div><div style="flex:1"><b>Sesión hecha</b><div class="sm mu2">¡Bien, María! Esto suma a tu semana.</div></div><a class="sm" onclick="markDone(\'' + ds + "',null)\">Deshacer</a></div>";
+  if (isDone) return '<div class="strava"><div class="ic" style="background:var(--lime);color:var(--limeInk)">✓</div><div style="flex:1"><b>' + (S.pclass[ds] ? "Clase de pilates hecha" : "Sesión hecha") + '</b><div class="sm mu2">¡Bien, María! Esto suma a tu semana.</div></div><a class="sm" onclick="markDone(\'' + ds + "',null)\">Deshacer</a></div>";
   const k = s.key || "extra";
-  return '<button class="btn" style="margin:4px 0 12px" onclick="markDone(\'' + ds + "','" + k + '\')">Marcar sesión como hecha</button>';
+  let b = '<button class="btn" style="margin:4px 0 12px" onclick="markDone(\'' + ds + "','" + k + '\')">Marcar sesión como hecha</button>';
+  if (s.pilates) b += '<button class="btn2" style="width:100%;margin:-4px 0 12px" onclick="markClass(\'' + ds + '\')">Fui a una clase de pilates</button>';
+  return b;
 }
-function markDone(ds, k) { if (k) S.done[ds] = k; else delete S.done[ds]; touch(); save(); _wk = {}; render(); schedPush(); if (k) toast("¡Hecho! 💪"); }
+function markClass(ds) { S.pclass[ds] = true; markDone(ds, "P"); }
+function markDone(ds, k) { if (k) S.done[ds] = k; else { delete S.done[ds]; delete S.pclass[ds]; } touch(); save(); _wk = {}; render(); schedPush(); if (k) toast("¡Hecho! 💪"); }
 function choosePick(ds) {
   const wp = weekOfDay(ds); if (!wp) return; const cur = S.dayPick[ds];
   let h = '<p class="sm mu" style="margin-bottom:10px">Elige qué quieres hacer hoy. El resto de la semana se reacomoda solo.</p>';
@@ -584,20 +628,29 @@ function saveBody(ds) {
 }
 function tech(k) {
   const x = EX[k];
-  openModal(x.n, '<span class="pill l">' + x.g + '</span><ol style="margin-top:12px">' + x.c.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ol>" + (x.k ? '<div class="knee">Para ti: ' + esc(x.k) + "</div>" : "") +
-    '<a class="btn2" style="display:block;text-align:center;margin-top:14px;text-decoration:none;color:var(--tx)" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(x.n + " técnica") + '" target="_blank" rel="noopener">Ver vídeos en YouTube</a>');
+  openModal(x.n, (x.es ? '<p class="sm mu" style="margin-bottom:8px">' + esc(x.es) + "</p>" : "") + '<span class="pill l">' + x.g + "</span>" + (x.p ? '<p class="sm" style="margin-top:10px"><b>Para qué sirve:</b> ' + esc(x.p) + "</p>" : "") + '<ol style="margin-top:12px">' + x.c.map(function (c) { return "<li>" + esc(c) + "</li>"; }).join("") + "</ol>" + (x.k ? '<div class="knee">Para ti: ' + esc(x.k) + "</div>" : "") +
+    '<a class="btn2" style="display:block;text-align:center;margin-top:14px;text-decoration:none;color:var(--tx)" href="https://www.youtube.com/results?search_query=' + encodeURIComponent(x.n + (x.g === "Pilates" ? " pilates" : " técnica")) + '" target="_blank" rel="noopener">Ver vídeos en YouTube</a>');
 }
 
 // ═══════════════════════════════════════════
 //  PLAN
 // ═══════════════════════════════════════════
-const SHORTN = { A: "Pierna A", B: "Torso A", C: "Pierna B", D: "Torso B", T1: "Básicos 1", T2: "Básicos 2" };
-function shortName(s) { if (!s) return "—"; if (s.key) return s.key.charAt(0) === "T" ? "Bás" + s.key.charAt(1) : SHORTN[s.key].replace(" ", ""); if (s.type === "tour") return "Gym"; if (s.type === "class") return "CF"; return "Desc"; }
+const SHORTN = { A: "Pierna A", B: "Torso A", C: "Pierna B", D: "Torso B", P: "Pilates", T1: "Básicos 1", T2: "Básicos 2" };
+function shortName(s) { if (!s) return "—"; if (s.key) return s.key === "P" ? "Pil" : s.key.charAt(0) === "T" ? "Bás" + s.key.charAt(1) : SHORTN[s.key].replace(" ", ""); if (s.type === "tour") return "Gym"; if (s.type === "class") return "CF"; return "Desc"; }
+// horas de pilates: sesión de la app ≈ 35 min, clase ≈ 55 min
+function pilatesMin() { let m = 0; Object.keys(S.done).forEach(function (d) { if (S.done[d] === "P") m += S.pclass[d] ? 55 : 35; }); return m; }
+const ROADMAP = [["Fundamentos", "oct – dic", "Fuerza básica, respiración, columna neutra y primeros ejercicios del repertorio."],
+  ["Repertorio", "ene – mar", "Más peso en el gym. Repertorio clásico inicial e intermedio: nombre, orden y para qué sirve cada ejercicio."],
+  ["Precisión", "abr – jun", "Ejecución limpia y explicar cada ejercicio en voz alta, como instructora."],
+  ["Pensar como instructora", "jul – sep", "Dar una clase corta, revisar tus horas y elegir escuela de formación."]];
 function renderPlan() {
   const t = todayS();
   let done = 0; Object.keys(S.done).forEach(function (d) { if (d <= t) done++; });
   const lastB = S.body.length ? S.body[S.body.length - 1] : null;
   let h = '<div class="count"><div class="c l"><b>' + done + '</b><span class="sm mu">sesiones hechas</span></div><div class="c"><b>' + (lastB ? lastB.kg : S.bw) + '</b><span class="sm mu">peso kg</span></div></div>';
+  const pm = pilatesMin();
+  h += '<div class="card" style="padding:12px 14px"><div class="row sp"><b>Camino a instructora de pilates</b><span class="pill l">' + (Math.round(pm / 6) / 10).toString().replace(".", ",") + ' h de pilates</span></div>' +
+    ROADMAP.map(function (r, i) { return '<div class="li" style="display:block;padding:8px 0;border-top:1px solid var(--line);' + (i ? "opacity:.6" : "") + '"><b>' + (i + 1) + " · " + r[0] + '</b> <span class="mu sm">' + r[1] + (i ? "" : " · ahora") + '</span><div class="sm mu">' + r[2] + "</div></div>"; }).join("") + "</div>";
   h += '<div class="phase" style="color:var(--lime)">' + ART.star + '<div class="pt"><span style="color:var(--tx)">Semana 0 · Inicio</span><span class="pm">Aprende los básicos · 8-11 oct</span></div></div>' + weekHTML("2026-10-05", null, t);
   let lastPh = 0;
   for (let w = 0; w < WEEKS; w++) {
@@ -624,8 +677,9 @@ function weekHTML(ws, wi, t) {
 function renderTec() {
   const used = {}; Object.keys(KEYS).forEach(function (k) { KEYS[k].ex.forEach(function (e) { used[e[0]] = 1; }); });
   const groups = {}; Object.keys(EX).filter(function (k) { return used[k]; }).forEach(function (k) { (groups[EX[k].g] = groups[EX[k].g] || []).push(k); });
+  if (groups.Pilates) groups.Pilates = KEYS.P.ex.map(function (e) { return e[0]; }).filter(function (k, i, a) { return a.indexOf(k) === i; });
   let h = '<div class="knee" style="margin:2px 0 14px">Por tu coxis, escoliosis, articulaciones flexibles y muñeca, cada ejercicio trae un consejo "Para ti". Si algo duele (dolor, no cansancio), para y cámbialo. Lo ideal es que un fisioterapeuta te revise al empezar.</div>';
-  ["Pierna", "Glúteo", "Torso", "Espalda", "Brazos", "Core", "Cardio"].forEach(function (g) { if (!groups[g]) return; h += '<div class="sec">' + g + "</div>" + groups[g].map(function (k) { return '<div class="tq" onclick="tech(\'' + k + '\')"><span>' + EX[k].n + '</span><span class="mu">›</span></div>'; }).join(""); });
+  ["Pilates", "Pierna", "Glúteo", "Torso", "Espalda", "Brazos", "Core", "Cardio"].forEach(function (g) { if (!groups[g]) return; h += '<div class="sec">' + g + "</div>" + groups[g].map(function (k) { return '<div class="tq" onclick="tech(\'' + k + '\')"><span>' + EX[k].n + (EX[k].es ? '<br><small class="mu">' + EX[k].es + "</small>" : "") + '</span><span class="mu">›</span></div>'; }).join(""); });
   $("p-tec").innerHTML = h;
 }
 
