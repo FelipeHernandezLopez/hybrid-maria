@@ -227,40 +227,59 @@ const EX = {
   deadbug:  { n: "Bicho muerto", g: "Core", c: ["Boca arriba, brazos al techo y rodillas a 90°.", "Baja brazo y pierna contrarios sin despegar la espalda baja del suelo.", "Lento y respirando."], k: "Reemplaza a los abdominales sentada (protege el coxis)." },
   birddog:  { n: "Bird dog", g: "Core", c: ["En cuatro apoyos, estira brazo y pierna contrarios.", "Cadera quieta, aguanta 2 segundos y cambia."], k: "Muñeca: apóyate sobre los puños cerrados o sobre mancuernas, no con la palma doblada." },
   farmer:   { n: "Caminata del granjero", g: "Core", kg: true, per: "mano", c: ["Una mancuerna o kettlebell en cada mano.", "Hombros atrás y abajo, camina erguida con pasos cortos."], k: "Si la muñeca molesta, usa correas o quítalo ese día." },
+  legpress: { n: "Prensa de piernas", g: "Pierna", kg: true, c: ["Espalda y cadera bien apoyadas en el respaldo.", "Pies al ancho de hombros en el centro de la plataforma.", "Baja hasta 90° de rodilla y empuja con toda la planta del pie.", "Arriba no bloquees las rodillas."], k: "Coxis y espalda: no bajes tanto que la cadera se despegue del asiento. Hiperlaxitud: rodillas siempre un poco dobladas arriba." },
+  legext:   { n: "Extensión de cuádriceps", g: "Pierna", kg: true, c: ["Rodilla alineada con el eje de la máquina.", "Estira las piernas apretando el cuádriceps 1 segundo arriba.", "Baja en 3 segundos."], k: "Hiperlaxitud: no estires de golpe ni bloquees; para justo antes de la extensión total." },
+  legcurl:  { n: "Curl femoral en máquina", g: "Pierna", kg: true, c: ["Ajusta el rodillo justo encima del talón.", "Flexiona llevando los talones hacia el glúteo.", "Vuelve lento en 3 segundos."], k: "Si es la versión sentada y el coxis molesta, usa la máquina acostada." },
+  hipthrustm:{ n: "Hip thrust en máquina", g: "Glúteo", kg: true, c: ["Espalda apoyada en el respaldo, cinturón sobre la cadera.", "Sube la cadera apretando glúteos 2 segundos arriba.", "Baja controlado."], k: "La espalda apoyada evita presión en el coxis." },
+  abductor: { n: "Abductores en máquina", g: "Glúteo", kg: true, c: ["Sentada con la espalda apoyada.", "Abre las piernas hacia afuera, pausa 1 segundo y vuelve lento."], k: "Si el coxis molesta sentada, usa un cojín o hazlo de pie con banda." },
+  kickback: { n: "Patada de glúteo en polea", g: "Glúteo", kg: true, per: "pierna", c: ["Tobillera en la polea baja, manos en la máquina.", "Lleva la pierna atrás apretando el glúteo sin arquear la espalda.", "Vuelve lento."], k: "Trabaja cada lado por separado: bueno para equilibrar la escoliosis." },
+  chestpress:{ n: "Press de pecho en máquina", g: "Torso", kg: true, c: ["Asiento a la altura en que las manijas quedan a mitad del pecho.", "Usa las manijas verticales (palmas enfrentadas) si las hay.", "Empuja sin bloquear los codos y vuelve lento."], k: "Muñeca recta, alineada con el antebrazo; si duele, agarre neutro." },
+  latpull:  { n: "Jalón al pecho (agarre neutro)", g: "Espalda", kg: true, c: ["Agarre de palmas enfrentadas (triángulo o barra neutra).", "Pecho arriba, lleva los codos hacia los costados hasta la barbilla.", "Sube lento sin dejar que el peso te jale."], k: "Agarre neutro = menos estrés en la muñeca." },
+  rowmach:  { n: "Remo en máquina con pecho apoyado", g: "Espalda", kg: true, c: ["Pecho contra el apoyo, agarre neutro.", "Lleva los codos atrás juntando los omóplatos.", "Vuelve lento."], k: "Pecho apoyado: la columna no carga, ideal con escoliosis." },
+  shpress:  { n: "Press de hombro en máquina", g: "Torso", kg: true, c: ["Espalda pegada al respaldo, agarre neutro si la máquina lo tiene.", "Empuja arriba sin bloquear los codos.", "Baja hasta la altura de las orejas."], k: "Coxis: cojín o toalla doblada en el asiento. Si molesta, cámbialo por press de pie con mancuernas." },
+  cablelat: { n: "Elevación lateral en polea", g: "Torso", kg: true, c: ["Polea baja, de lado, agarre con la mano contraria.", "Sube el brazo hasta la altura del hombro guiando con el codo.", "Baja en 3 segundos."] },
+  pushdown: { n: "Tríceps en polea con cuerda", g: "Brazos", kg: true, c: ["Codos pegados al cuerpo.", "Estira los brazos abriendo la cuerda abajo.", "Vuelve lento."], k: "La cuerda deja la muñeca en posición neutra." },
+  cablecurl:{ n: "Curl en polea con cuerda", g: "Brazos", kg: true, c: ["Polea baja, cuerda con palmas enfrentadas.", "Codos pegados, sube y baja lento."], k: "Agarre martillo: el más cómodo para la muñeca." },
+  cfacepull:{ n: "Face pull en polea", g: "Espalda", kg: true, c: ["Polea a la altura de la cara, cuerda.", "Tira hacia la frente separando las manos.", "Ligero y controlado."] },
+  cpallof:  { n: "Pallof press en polea", g: "Core", kg: true, c: ["De lado a la polea, a la altura del pecho.", "Empuja al frente y aguanta 2 segundos sin girar el tronco."], k: "Core anti-rotación: de lo mejor para la escoliosis." },
   walk:     { n: "Caminata inclinada en cinta", g: "Cardio", c: ["Inclinación 8-10%, velocidad cómoda.", "Sin agarrarte de la barra."] }
 };
 
 // Las 4 sesiones de la semana. Cada ejercicio: [clave, series×reps por fase 1/2/3, nota]
+// Las 4 sesiones. Cada ejercicio: [clave, series×reps por fase 1/2/3, nota, fase desde la que aparece]
+// Fase 1 casi todo en máquinas (guían el movimiento); en las fases 2 y 3 entra el peso libre.
 const KEYS = {
   A: { n: "Pierna A", sub: "Cuádriceps y glúteo · 50 min", warm: "pierna", ex: [
-    ["sled", ["4×15 m", "4×20 m", "5×20 m"], "Ligero, ritmo constante"],
-    ["goblet", ["2-3×12", "3×10-12", "4×8-10"], "Bajada en 3 segundos"],
-    ["stepup", ["2×8/pierna", "3×10/pierna", "3×10/pierna"], ""],
-    ["bridge", ["2-3×12", "3×12", "3×10"], "Pausa de 2 s arriba"],
-    ["lateral", ["2×10/lado", "2×12/lado", "3×12/lado"], ""],
+    ["legpress", ["2-3×12", "3×10-12", "4×8-10"], "Cadera pegada al asiento"],
+    ["goblet", ["", "3×10", "3×8-10"], "Bajada en 3 segundos", 2],
+    ["legext", ["2-3×12", "3×12", "3×10-12"], "Sin bloquear"],
+    ["hipthrustm", ["2-3×12", "3×10-12", "4×8-10"], "Pausa de 2 s arriba"],
+    ["abductor", ["2×15", "3×15", "3×12-15"], ""],
     ["deadbug", ["2×6/lado", "3×8/lado", "3×10/lado"], ""]] },
-  B: { n: "Torso A", sub: "Empuje y espalda · 45 min", warm: "torso", ex: [
-    ["dbbench", ["2-3×12", "3×10-12", "4×8-10"], "Agarre neutro"],
-    ["csrow", ["2-3×12", "3×10-12", "4×8-10"], ""],
-    ["bandpull", ["2×12", "3×12", "3×15"], ""],
-    ["dbpress", ["2×12", "3×10", "3×8-10"], "De pie"],
-    ["facepull", ["2×15", "2×15", "3×15"], "Ligero"],
+  B: { n: "Torso A", sub: "Pecho, espalda y hombro · 45 min", warm: "torso", ex: [
+    ["chestpress", ["2-3×12", "3×10-12", "3×8-10"], "Agarre neutro"],
+    ["latpull", ["2-3×12", "3×10-12", "4×8-10"], "Agarre neutro"],
+    ["shpress", ["2×12", "3×10", "3×8-10"], "Con cojín"],
+    ["rowmach", ["2×12", "3×12", "3×10"], ""],
+    ["cablelat", ["2×12", "3×12", "3×12-15"], "Ligero"],
     ["sideplank", ["2×15 s/lado", "3×20 s/lado", "3×30 s/lado"], ""]] },
   C: { n: "Pierna B", sub: "Glúteo e isquios · 50 min", warm: "pierna", ex: [
-    ["rdl", ["2-3×12", "3×10", "4×8-10"], "Espalda recta"],
-    ["hipthrust", ["2-3×12", "3×10-12", "4×8-10"], "Espalda en el banco"],
-    ["rlunge", ["2×6/pierna", "3×8/pierna", "3×10/pierna"], "Con apoyo en el rack"],
-    ["sbridge", ["2×8/lado", "2×10/lado", "3×10/lado"], ""],
-    ["sledpull", ["3×15 m", "4×20 m", "4×20 m"], ""],
+    ["hipthrustm", ["2-3×12", "3×10-12", "", 1], "Pausa arriba"],
+    ["hipthrust", ["", "", "4×8-10"], "Barra con almohadilla, espalda en el banco", 3],
+    ["rdl", ["", "3×10", "3×8-10"], "Espalda recta", 2],
+    ["legcurl", ["2-3×12", "3×10-12", "3×10-12"], "Bajada lenta"],
+    ["kickback", ["2×12/pierna", "3×12/pierna", "3×12/pierna"], ""],
+    ["stepup", ["2×8/pierna", "3×10/pierna", "3×10/pierna"], "Sin peso al principio"],
     ["birddog", ["2×6/lado", "3×8/lado", "3×10/lado"], "Sobre los puños"]] },
   D: { n: "Torso B", sub: "Espalda, brazos y core · 45 min", warm: "torso", ex: [
-    ["incpush", ["2×8", "3×8-10", "3×10-12"], ""],
-    ["invrow", ["2×8", "3×8-10", "3×10-12"], ""],
-    ["ohp1", ["2×10/brazo", "3×10/brazo", "3×8-10/brazo"], ""],
-    ["hammer", ["2×12", "3×10-12", "3×10-12"], ""],
-    ["bandtri", ["2×15", "2×15", "3×15"], ""],
-    ["pallof", ["2×10/lado", "3×10/lado", "3×12/lado"], ""],
-    ["farmer", ["2×20 m", "3×30 m", "3×30 m"], "Ligero"]] }
+    ["rowmach", ["2-3×12", "3×10-12", "4×8-10"], "Pecho apoyado"],
+    ["chestpress", ["2×12", "3×10-12", "", 1], ""],
+    ["dbbench", ["", "", "3×8-10"], "Agarre neutro", 3],
+    ["latpull", ["2×12", "3×12", "3×10"], ""],
+    ["cfacepull", ["2×15", "3×15", "3×15"], "Ligero"],
+    ["cablecurl", ["2×12", "3×10-12", "3×10-12"], ""],
+    ["pushdown", ["2×12", "3×12", "3×12"], ""],
+    ["cpallof", ["2×10/lado", "3×10/lado", "3×12/lado"], ""]] }
 };
 const KEY_ORDER = ["A", "B", "C", "D"];
 const LEGS = { A: 1, C: 1 };
@@ -335,14 +354,14 @@ function suggestKg(ex, ds) {
 function keySession(k, wi, ds) {
   const K = KEYS[k];
   return { type: "gym", key: k, t: K.n, sub: K.sub, warm: K.warm, cool: "cool", wi: wi, nut: "train",
-    list: K.ex.map(function (e) { return { ex: e[0], sr: rx(e[1], wi), note: e[2] }; }),
+    list: K.ex.filter(function (e) { return (e[3] || 1) <= wi.ph && e[1][wi.ph - 1]; }).map(function (e) { return { ex: e[0], sr: rx(e[1], wi), note: e[2] }; }),
     finisher: wi.ph >= 2 ? "Final opcional: 8-10 min de caminata inclinada en cinta." : "" };
 }
 function special(kind, ds, wi) {
   if (kind === "tour") {
-    const all = []; KEY_ORDER.forEach(function (k) { KEYS[k].ex.forEach(function (e) { if (EX[e[0]].kg && all.indexOf(e[0]) < 0) all.push(e[0]); }); });
+    const all = []; KEY_ORDER.forEach(function (k) { KEYS[k].ex.forEach(function (e) { if (EX[e[0]].kg && (e[3] || 1) === 1 && e[1][0] && all.indexOf(e[0]) < 0) all.push(e[0]); }); });
     return { type: "tour", t: "Conoce el gym", sub: "Pruebas de carga ligeras · 60 min", warm: "pierna", cool: "cool", wi: null, nut: "train",
-      info: ["Recorre los ejercicios de tu plan y prueba cada uno con poco peso.", "Busca el peso con el que haces 12 repeticiones bien hechas y aún te quedarían unas 3 más.", "Anótalo abajo: será tu peso de inicio. Si un ejercicio molesta (muñeca, espalda, coxis), no lo fuerces y deja la casilla vacía."],
+      info: ["Recorre las máquinas de tu plan (pide ayuda al staff para ajustar asientos) y prueba cada una con poco peso.", "Busca el peso con el que haces 12 repeticiones bien hechas y aún te quedarían unas 3 más.", "Anótalo abajo: será tu peso de inicio. Si un ejercicio molesta (muñeca, espalda, coxis), no lo fuerces y deja la casilla vacía."],
       list: all.map(function (x) { return { ex: x, sr: "1-2 series de prueba × 12", note: "" }; }) };
   }
   if (kind === "crossfit") return { type: "class", t: "Clase de CrossFit suave", sub: "Muy ligera · aprender y disfrutar", wi: null, nut: "train",
