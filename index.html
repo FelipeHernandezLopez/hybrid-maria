@@ -144,12 +144,14 @@ details.list[open] summary{border-bottom:1px solid var(--line)}
 <main>
   <section id="p-hoy" class="panel on"></section>
   <section id="p-plan" class="panel"></section>
+  <section id="p-prog" class="panel"></section>
   <section id="p-tec" class="panel"></section>
   <section id="p-aj" class="panel"></section>
 </main>
 <nav>
   <button id="n-hoy" class="on" onclick="show('hoy')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>Hoy</button>
   <button id="n-plan" onclick="show('plan')"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>Plan</button>
+  <button id="n-prog" onclick="show('prog')"><svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>Progreso</button>
   <button id="n-tec" onclick="show('tec')"><svg viewBox="0 0 24 24"><path d="M6 8v8M18 8v8M3 10v4M21 10v4M6 12h12"/></svg>Técnica</button>
   <button id="n-aj" onclick="show('aj')"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Ajustes</button>
 </nav>
@@ -531,8 +533,8 @@ async function oauthBack(code) { toast("Conectando Polar…"); try { const d = a
 // ═══════════════════════════════════════════
 //  NAVEGACIÓN
 // ═══════════════════════════════════════════
-function show(t) { tab = t; ["hoy", "plan", "tec", "aj"].forEach(function (x) { $("p-" + x).classList.toggle("on", x === t); $("n-" + x).classList.toggle("on", x === t); }); render(); }
-function render() { _wk = {}; updHeader(); if (tab === "hoy") renderHoy(); else if (tab === "plan") renderPlan(); else if (tab === "tec") renderTec(); else renderAj(); }
+function show(t) { tab = t; ["hoy", "plan", "prog", "tec", "aj"].forEach(function (x) { $("p-" + x).classList.toggle("on", x === t); $("n-" + x).classList.toggle("on", x === t); }); render(); }
+function render() { _wk = {}; updHeader(); if (tab === "hoy") renderHoy(); else if (tab === "plan") renderPlan(); else if (tab === "prog") renderProg(); else if (tab === "tec") renderTec(); else renderAj(); }
 function updHeader() {
   const t = todayS(), wi = posOf(t);
   const b = (PRE[t] || diff(t, START) < 0) ? "SEMANA 0 · INICIO" : wi ? "S" + (wi.w + 1) + " DE " + WEEKS + " · " + PHASE[wi.ph].toUpperCase() : "CICLO TERMINADO";
@@ -696,6 +698,104 @@ function renderAj() {
   $("p-aj").innerHTML = h;
 }
 function saveConn() { S.conn = normConn($("aj-conn").value); save(); if (!connParts()) { toast("El código no parece correcto"); return; } toast("Conectando…"); pushAll().then(function () { refresh(false); renderAj(); }); }
+
+// ═══════════════════════════════════════════
+//  CHARTS · small SVG line and bar charts (no libraries)
+// ═══════════════════════════════════════════
+const CH = { lime: "#C6F432", white: "#F2F3F0", orange: "#FF8A1F", blue: "#7DB8FF", pink: "#FF8FB1", mu: "#7E847A", grid: "rgba(255,255,255,.07)" };
+function chNum(v) { return v === "" || v == null || isNaN(+v) ? null : +v; }
+// series: [{ name, color, pts: [[ds, value]], dash }] · o: { goal, goalLabel, fmt, invert, h }
+function lineChart(series, o) {
+  o = o || {}; const W = 320, H = o.h || 150, L = 36, R = 12, T = 12, B = 22;
+  series = series.map(function (s) { return Object.assign({}, s, { pts: s.pts.filter(function (p) { return p[0] && chNum(p[1]) != null; }).map(function (p) { return [p[0], +p[1]]; }).sort(function (a, b) { return a[0] < b[0] ? -1 : 1; }) }); }).filter(function (s) { return s.pts.length; });
+  if (!series.length) return '<p class="sm mu" style="padding:18px 0;text-align:center">' + (o.empty || "No data yet") + "</p>";
+  const fmt = o.fmt || function (v) { return String(Math.round(v * 10) / 10); };
+  const ds = [], vs = [];
+  series.forEach(function (s) { s.pts.forEach(function (p) { ds.push(p[0]); vs.push(p[1]); }); });
+  const goals = o.goals || (o.goal != null ? [{ v: o.goal, label: o.goalLabel }] : []);
+  goals.forEach(function (x) { vs.push(x.v); });
+  let d0 = ds.reduce(function (a, b) { return a < b ? a : b; }), d1 = ds.reduce(function (a, b) { return a > b ? a : b; });
+  if (d0 === d1) { d0 = addD(d0, -7); d1 = addD(d1, 7); }
+  let v0 = Math.min.apply(null, vs), v1 = Math.max.apply(null, vs);
+  const pos = v0 >= 0, pad = (v1 - v0) * 0.12 || Math.max(1, Math.abs(v1) * 0.05); v0 -= pad; v1 += pad; if (pos && v0 < 0) v0 = 0;
+  const span = diff(d1, d0) || 1;
+  const X = function (d) { return L + (W - L - R) * diff(d, d0) / span; };
+  const Y = function (v) { const f = (v - v0) / (v1 - v0); return o.invert ? T + (H - T - B) * f : H - B - (H - T - B) * f; };
+  let g = "";
+  for (let i = 0; i <= 3; i++) { const v = v0 + (v1 - v0) * i / 3, y = Y(v); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="' + CH.grid + '"/><text x="' + (L - 5) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="' + CH.mu + '">' + fmt(v) + "</text>"; }
+  goals.forEach(function (x) { const c = x.color || CH.lime, y = Y(x.v).toFixed(1); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + c + '" stroke-dasharray="4 4" opacity=".7"/><text x="' + (W - R) + '" y="' + (+y - 4) + '" text-anchor="end" font-size="9" font-weight="600" fill="' + c + '">' + esc(x.label || fmt(x.v)) + "</text>"; });
+  series.forEach(function (s) {
+    const c = s.color || CH.lime;
+    if (s.pts.length > 1) g += '<polyline fill="none" stroke="' + c + '" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"' + (s.dash ? ' stroke-dasharray="5 4"' : "") + ' points="' + s.pts.map(function (p) { return X(p[0]).toFixed(1) + "," + Y(p[1]).toFixed(1); }).join(" ") + '"/>';
+    s.pts.forEach(function (p, i) { const last = i === s.pts.length - 1; g += '<circle cx="' + X(p[0]).toFixed(1) + '" cy="' + Y(p[1]).toFixed(1) + '" r="' + (last ? 3.6 : 2.4) + '" fill="' + c + '"/>'; });
+  });
+  g += '<text x="' + L + '" y="' + (H - 6) + '" font-size="9" fill="' + CH.mu + '">' + fdate(d0) + '</text><text x="' + (W - R) + '" y="' + (H - 6) + '" text-anchor="end" font-size="9" fill="' + CH.mu + '">' + fdate(d1) + "</text>";
+  const leg = series.length > 1 || o.legend ? '<div class="chips" style="margin-top:6px">' + series.map(function (s) { return '<span class="sm" style="color:' + (s.color || CH.lime) + '">● ' + esc(s.name) + " " + fmt(s.pts[s.pts.length - 1][1]) + "</span>"; }).join("") + "</div>" : "";
+  return '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;max-height:230px;display:block" font-family="Inter,sans-serif">' + g + "</svg>" + leg;
+}
+// bars: [{ label, a, b }] stacked (a = main colour, b = second) · o: { aName, bName, goal, aColor, bColor, fmt }
+function barChart(bars, o) {
+  o = o || {}; if (!bars.length) return '<p class="sm mu" style="padding:18px 0;text-align:center">No data yet</p>';
+  const W = 320, H = o.h || 140, L = 26, R = 8, T = 12, B = 20;
+  const max = Math.max(o.goal || 0, Math.max.apply(null, bars.map(function (b) { return (b.a || 0) + (b.b || 0); }))) * 1.12 || 1;
+  const n = bars.length, bw = Math.min(26, (W - L - R) / n * 0.62), step = (W - L - R) / n;
+  const Y = function (v) { return H - B - (H - T - B) * v / max; };
+  const fmt = o.fmt || function (v) { return String(Math.round(v)); };
+  let g = "";
+  for (let i = 0; i <= 2; i++) { const v = max * i / 2, y = Y(v); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y.toFixed(1) + '" y2="' + y.toFixed(1) + '" stroke="' + CH.grid + '"/><text x="' + (L - 4) + '" y="' + (y + 3).toFixed(1) + '" text-anchor="end" font-size="9" fill="' + CH.mu + '">' + fmt(v) + "</text>"; }
+  if (o.goal) { const y = Y(o.goal).toFixed(1); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + CH.lime + '" stroke-dasharray="4 4" opacity=".6"/>'; }
+  bars.forEach(function (b, i) {
+    const x = L + step * i + (step - bw) / 2, a = b.a || 0, c = b.b || 0;
+    if (a) g += '<rect x="' + x.toFixed(1) + '" y="' + Y(a).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (Y(0) - Y(a)).toFixed(1) + '" rx="3" fill="' + (o.aColor || CH.lime) + '"/>';
+    if (c) g += '<rect x="' + x.toFixed(1) + '" y="' + Y(a + c).toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + (Y(a) - Y(a + c)).toFixed(1) + '" rx="3" fill="' + (o.bColor || "#4A4F45") + '"/>';
+    if (n <= 16 || i % 2 === 0) g += '<text x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="9" fill="' + CH.mu + '">' + esc(b.label) + "</text>";
+  });
+  const leg = o.bName ? '<div class="chips" style="margin-top:6px"><span class="sm" style="color:' + (o.aColor || CH.lime) + '">● ' + esc(o.aName) + '</span><span class="sm mu">● ' + esc(o.bName) + "</span></div>" : "";
+  return '<svg viewBox="0 0 ' + W + " " + H + '" style="width:100%;height:auto;max-height:230px;display:block" font-family="Inter,sans-serif">' + g + "</svg>" + leg;
+}
+function chartCard(title, big, sub, svg) {
+  return '<div class="card" style="padding:13px 14px 12px"><div class="row sp" style="align-items:flex-start"><div><div class="lbl" style="margin:0">' + esc(title) + "</div>" + (sub ? '<div class="sm mu">' + sub + "</div>" : "") + '</div><b style="font-family:\'Barlow Condensed\';font-size:24px;line-height:1;color:var(--lime);white-space:nowrap">' + (big == null ? "" : big) + '</b></div><div style="margin-top:8px">' + svg + "</div></div>";
+}
+// weekly average of daily values [[ds, v]] → [[weekStartDs, avg]]
+function weeklyAvg(pts, start) {
+  const W = {}; pts.forEach(function (p) { const v = chNum(p[1]); if (v == null || p[0] < start) return; const w = addD(start, Math.floor(diff(p[0], start) / 7) * 7); (W[w] = W[w] || []).push(v); });
+  return Object.keys(W).sort().map(function (w) { return [w, W[w].reduce(function (a, b) { return a + b; }, 0) / W[w].length]; });
+}
+
+// ═══════════════════════════════════════════
+//  PROGRESO · lo mismo que el Panel de la hoja, en el teléfono
+// ═══════════════════════════════════════════
+function sgn(v, u) { v = Math.round(v * 10) / 10; return (v > 0 ? "+" : v < 0 ? "−" : "±") + Math.abs(v) + (u || ""); }
+function exPts(ex) { return Object.keys(S.logs).sort().filter(function (d) { return S.logs[d][ex] && chNum(S.logs[d][ex].kg) != null; }).map(function (d) { return [d, +S.logs[d][ex].kg]; }); }
+function renderProg() {
+  let h = "";
+  // 1 · peso
+  const kg = S.body.filter(function (b) { return b.kg; }).map(function (b) { return [b.d, +b.kg]; });
+  if (!kg.length || kg[0][0] > START) kg.unshift([START, 52.2]);
+  const kl = kg[kg.length - 1];
+  h += chartCard("Peso", kl[1] + " kg", sgn(kl[1] - 52.2, " kg") + " desde el inicio · para ganar músculo, subir poco a poco está bien", lineChart([{ name: "Peso", pts: kg }]));
+  // 2 · pesos por ejercicio
+  const grp = function (title, list) {
+    const ser = list.map(function (x, i) { return { name: EX[x[0]].n, color: [CH.lime, CH.orange, CH.blue, CH.white][i], pts: exPts(x[0]) }; });
+    return chartCard(title, null, "El peso que anotas en cada sesión (kg)", lineChart(ser, { legend: true, empty: "Aparece cuando anotes los kg en tus sesiones" }));
+  };
+  h += grp("Pierna", [["goblet"], ["hipthrust"], ["rdl"], ["rlunge"]]);
+  h += grp("Torso", [["dbbench"], ["dbrow"], ["dbpress"], ["latpull"]]);
+  // 3 · sesiones por semana
+  const cw = posOf(todayS()), bars = [];
+  for (let w = 0; cw && w <= cw.w; w++) {
+    const wp = weekPlan(w), ws = addD(START, w * 7); let all = 0;
+    for (let d = 0; d < 7; d++) if (S.done[addD(ws, d)]) all++;
+    bars.push({ label: "S" + (w + 1), a: wp.real, b: Math.max(0, all - wp.real) });
+  }
+  const lb = bars[bars.length - 1];
+  h += chartCard("Sesiones por semana", lb ? lb.a + "/4" : "—", "Del plan (lima) + extras", barChart(bars, { goal: 4, aName: "Del plan", bName: "Extras" }));
+  // 4 · horas de pilates
+  let acc = 0; const pil = Object.keys(S.done).sort().filter(function (d) { return S.done[d] === "P"; }).map(function (d) { acc += S.pclass[d] ? 55 : 35; return [d, Math.round(acc / 6) / 10]; });
+  h += chartCard("Horas de pilates", pil.length ? String(pil[pil.length - 1][1]).replace(".", ",") + " h" : "0 h", "Tu camino a instructora: sesiones y clases", lineChart([{ name: "Pilates", color: CH.orange, pts: pil }], { empty: "Aparece con tu primera sesión de pilates" }));
+  h += '<p class="sm mu" style="text-align:center;margin:6px 0 4px">VO2 máx, sueño y recuperación aparecen si algún día usas un reloj Polar.</p>';
+  $("p-prog").innerHTML = h;
+}
 
 // ═══════════════════════════════════════════
 //  ARRANQUE
