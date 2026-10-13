@@ -517,7 +517,7 @@ function planDays() {
   const out = [];
   for (let ds = "2026-10-07"; ds <= addD(START, WEEKS * 7 - 1); ds = addD(ds, 1)) {
     const s = sessionFor(ds); if (!s) continue; const wi = s.wi;
-    out.push({ d: ds, w: wi ? wi.w + 1 : 0, ph: wi ? PHASE[wi.ph] : "Inicio", dia: DF[dow(ds)], ses: s.t, loads: (s.list || []).map(function (e) { const g = suggestKg(e.ex, ds); return EX[e.ex].n + " " + e.sr + (g ? " · " + g.kg + " kg" : ""); }).join(" · ") });
+    out.push({ d: ds, w: wi ? wi.w + 1 : 0, ph: wi ? PHASE[wi.ph] : "Inicio", dia: DF[dow(ds)], ses: s.type === "rest" && !/Descanso/.test(s.t) ? "Descanso · " + s.t : s.t, loads: (s.list || []).map(function (e) { const g = suggestKg(e.ex, ds); return EX[e.ex].n + " " + e.sr + (g ? " · " + g.kg + " kg" : ""); }).join(" · ") });
   }
   return out;
 }
