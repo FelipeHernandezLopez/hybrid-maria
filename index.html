@@ -496,10 +496,15 @@ function applyData(d) {
   if (Object.keys(S.done).length > Object.keys(d.done || {}).length || S.dirty) missing = true;
   _wk = {}; save(); render(); if (missing) schedPush(); return true;
 }
+function syncBtn(txt, end) {
+  const b = document.querySelector('[onclick="refresh(true)"]'); if (!b) return;
+  b.textContent = txt; b.disabled = !end; b.style.opacity = end ? "1" : ".6";
+  if (end) setTimeout(function () { if (tab === "aj") renderAj(); }, 1800);
+}
 async function refresh(manual) {
   if (!connParts()) { if (manual) toast("Falta el código de conexión en Ajustes"); return; }
-  try { if (manual) { toast("Sincronizando…"); if (applyData(await apiPost({ a: "sync" }))) toast("Todo al día"); } else applyData(await apiGet()); }
-  catch (e) { if (manual) toast("No se pudo conectar con la hoja"); }
+  try { if (manual) { syncBtn("Sincronizando…"); toast("Sincronizando…"); if (applyData(await apiPost({ a: "sync" }))) { toast("Todo al día"); syncBtn("✓ Todo al día", true); } else syncBtn("No se pudo sincronizar", true); } else applyData(await apiGet()); }
+  catch (e) { if (manual) { toast("No se pudo conectar con la hoja"); syncBtn("No se pudo sincronizar", true); } }
 }
 function touch() { S.setAt = Date.now(); }
 let _pt = null;
