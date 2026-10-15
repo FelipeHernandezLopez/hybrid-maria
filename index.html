@@ -584,10 +584,16 @@ function renderHoy() {
   h += bodyHTML(ds) + nutHTML(s.nut);
   $("p-hoy").innerHTML = h;
 }
+// "4×8" → "4 series × 8 reps": always sets first, then reps
+function fmtSR(sr) {
+  const m = String(sr || "").match(/^(\d+)×(.+)$/); if (!m) return String(sr || "");
+  const r = m[2], reps = /^\d+(-\d+)?(\/.+)?$/.test(r);
+  return m[1] + (m[1] === "1" ? " serie" : " series") + " × " + (reps ? r.replace(/^(\d+(?:-\d+)?)/, "$1 reps") : r);
+}
 function exHTML(e, ds, tour) {
   const x = EX[e.ex], l = (S.logs[ds] || {})[e.ex] || {}, g = suggestKg(e.ex, ds);
   let right = "<b>" + (tour ? "×10" : e.sr.split("/")[0].split(" ")[0]) + "</b>";
-  let hint = esc(e.sr) + (e.note ? " · " + esc(e.note) : "");
+  let hint = esc(fmtSR(e.sr)) + (e.note ? " · " + esc(e.note) : "");
   if (x.kg && !tour) hint += g ? " · " + (g.up ? "¡sube a " + g.kg + " kg!" : "usa " + g.kg + " kg") + (x.per ? " por " + x.per : "") : " · empieza ligero";
   let inputs = "";
   if (x.kg) inputs = '<div class="row" style="margin-top:10px;gap:8px" onclick="event.stopPropagation()"><input class="inp" style="width:96px;padding:8px 10px" inputmode="decimal" placeholder="' + (g ? g.kg : "kg") + '" value="' + esc(l.kg || "") + '" onchange="setKg(\'' + ds + "','" + e.ex + '\',this.value)"><span class="sm mu">kg' + (x.per ? " por " + x.per : "") + "</span>" +
