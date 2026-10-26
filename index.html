@@ -393,10 +393,37 @@ function lastLog(ex, before) {
   const ds = Object.keys(S.logs).filter(function (d) { return d < before && S.logs[d][ex] && S.logs[d][ex].kg; }).sort().pop();
   return ds ? Object.assign({ d: ds }, S.logs[ds][ex]) : null;
 }
+// Alternativas cuando la máquina está ocupada o no hay material (↔ Cambiar)
+const SUBS = {
+  goblet: ["Sentadilla en máquina Smith a cajón", "Prensa de piernas"], bsquat: ["Sentadilla goblet a cajón", "Prensa de piernas"],
+  hipthrust: ["Hip thrust en máquina", "Puente de glúteo con mancuerna"], hipthrustm: ["Hip thrust con mancuerna en banco", "Puente de glúteo con mancuerna"],
+  rlunge: ["Subida al cajón", "Sentadilla split"], stepup: ["Estocada hacia atrás", "Sentadilla split"], legpress: ["Sentadilla goblet a cajón", "Sentadilla en Smith"],
+  abductor: ["Caminata lateral con banda", "Abducción de pie con banda"], dbbench: ["Press de pecho en máquina (agarre neutro)", "Flexiones inclinadas en barra"],
+  dbrow: ["Remo en máquina con pecho apoyado", "Remo en polea sentada"], dbpress: ["Press de hombro en máquina (con cojín)", "Press a una mano de pie"],
+  incpush: ["Press de pecho en máquina", "Press con mancuernas en banco inclinado"], cfacepull: ["Face pull con banda", "Pájaros con mancuernas ligeras"],
+  cablelat: ["Elevación lateral con mancuernas ligeras"], rdl: ["Peso muerto rumano con kettlebell", "Curl femoral en máquina"], rdlbb: ["Peso muerto rumano con mancuernas"],
+  split: ["Estocada hacia atrás", "Subida al cajón"], bulg: ["Sentadilla split", "Subida al cajón"], legcurl: ["Curl femoral con fitball", "Puente de glúteo a una pierna"],
+  farmer: ["Paseo con kettlebells", "Paseo con una mancuerna (alterna lados)"], latpull: ["Remo invertido en barra", "Jalón con banda"],
+  csrow: ["Remo en máquina con pecho apoyado", "Remo en polea sentada"], incdb: ["Press de pecho en máquina inclinado", "Flexiones inclinadas en barra"],
+  cablecurl: ["Curl martillo con mancuernas"], pushdown: ["Extensión de tríceps con banda"]
+};
+function subOf(ds, ex) { return ((S.logs[ds] || {}).subs || {})[ex] || ""; }
+function swapEx(ds, ex) {
+  const cur = subOf(ds, ex), opt = function (v, lbl, on) { return '<button class="btn2" style="width:100%;margin-bottom:8px;text-align:left' + (on ? ";outline:1.5px solid var(--lime)" : "") + '" onclick="setSub(\'' + ds + "','" + ex + "'," + (v == null ? "null" : "'" + encodeURIComponent(v) + "'") + ')">' + esc(lbl) + "</button>"; };
+  openModal("Cambiar ejercicio", '<p class="sm mu" style="margin-bottom:10px">' + esc(EX[ex].n) + " → hoy hago:</p>" + SUBS[ex].map(function (a) { return opt(a, a, cur === a); }).join("") + (cur ? opt(null, "Volver al original: " + EX[ex].n, false) : ""));
+}
+function setSub(ds, ex, v) { S.logs[ds] = S.logs[ds] || {}; S.logs[ds].subs = S.logs[ds].subs || {}; if (v) S.logs[ds].subs[ex] = decodeURIComponent(v); else delete S.logs[ds].subs[ex]; touch(); save(); closeModal(); renderHoy(); schedPush(); }
+function fails2(ex, before) {
+  const ls = Object.keys(S.logs).filter(function (d) { return d < before && S.logs[d][ex] && S.logs[d][ex].kg; }).sort().slice(-2);
+  return ls.length === 2 && ls.every(function (d) { return S.logs[d][ex].fail; });
+}
+function setReps(ds, ex, v) { S.logs[ds] = S.logs[ds] || {}; S.logs[ds][ex] = Object.assign({}, S.logs[ds][ex], { reps: String(v || "").trim() }); save(); schedPush(); }
 function suggestKg(ex, ds) {
   const l = lastLog(ex, ds); if (!l) return null;
-  const kg = +l.kg; if (!l.top) return { kg: kg, up: false };
-  const step = EX[ex].per ? (kg < 10 ? 1 : 2) : (kg < 20 ? 2.5 : 5);
+  const kg = +l.kg, per = (EX[ex.replace(/_alt$/, "")] || {}).per && ex.indexOf("_alt") < 0;
+  if (fails2(ex, ds)) return { kg: per ? Math.max(1, Math.min(kg - 1, Math.round(kg * 0.95))) : Math.max(2.5, Math.min(kg - 2.5, Math.round(kg * 0.95 / 2.5) * 2.5)), up: false, down: true };
+  if (!l.top) return { kg: kg, up: false };
+  const step = per ? (kg < 10 ? 1 : 2) : (kg < 20 ? 2.5 : 5);
   return { kg: Math.round((kg + step) * 2) / 2, up: true, from: kg };
 }
 
@@ -520,7 +547,8 @@ async function pushAll() {
   if (!connParts()) return;
   try {
     const logs = [];
-    Object.keys(S.logs).forEach(function (ds) { Object.keys(S.logs[ds]).forEach(function (ex) { const l = S.logs[ds][ex]; if (l && (l.kg || l.top)) logs.push({ d: ds, ses: (sessionFor(ds) || {}).t || "", ex: EX[ex] ? EX[ex].n : ex, id: ex, kg: l.kg || "", top: !!l.top }); }); });
+    Object.keys(S.logs).forEach(function (ds) { Object.keys(S.logs[ds]).forEach(function (ex) { const l = S.logs[ds][ex]; if (ex === "subs") return; const base = ex.replace(/_alt$/, ""), nm = ex !== base ? (subOf(ds, base) || "Alt") + " (en vez de " + (EX[base] ? EX[base].n : base) + ")" : EX[ex] ? EX[ex].n : ex;
+      if (l && (l.kg || l.top || l.fail)) logs.push({ d: ds, ses: (sessionFor(ds) || {}).t || "", ex: nm + (l.fail ? " · no completé" + (l.reps ? " (" + l.reps + ")" : "") : ""), id: ex, kg: l.kg || "", top: !!l.top }); }); });
     const r = await apiPost({ a: "push", plan: { name: "Inicio María · " + fdate(START) + " " + START.slice(0, 4), start: START, pre: "2026-10-05", race: addD(START, WEEKS * 7 - 1) },
       profile: { owner: "María Cristina Samaniego", sub: "SAMANIEGO · Panamá · se actualiza cada día a las 6 am", kind: "gym", polar: false, protein: NUT.p, logo: "https://felipehernandezlopez.github.io/hybrid-maria/icon-512.png" },
       days: planDays(), body: S.body, logs: logs, done: S.done, settings: { at: S.setAt || 0, dayPick: S.dayPick } });
@@ -591,17 +619,25 @@ function fmtSR(sr) {
   return m[1] + (m[1] === "1" ? " serie" : " series") + " × " + (reps ? r.replace(/^(\d+(?:-\d+)?)/, "$1 reps") : r);
 }
 function exHTML(e, ds, tour) {
-  const x = EX[e.ex], l = (S.logs[ds] || {})[e.ex] || {}, g = suggestKg(e.ex, ds);
-  let right = "<b>" + (tour ? "×10" : e.sr.split("/")[0].split(" ")[0]) + "</b>";
-  let hint = esc(fmtSR(e.sr)) + (e.note ? " · " + esc(e.note) : "");
-  if (x.kg && !tour) hint += g ? " · " + (g.up ? "¡sube a " + g.kg + " kg!" : "usa " + g.kg + " kg") + (x.per ? " por " + x.per : "") : " · empieza ligero";
+  const x = EX[e.ex], sub = subOf(ds, e.ex), id = sub ? e.ex + "_alt" : e.ex, l = (S.logs[ds] || {})[id] || {}, g = suggestKg(id, ds);
+  const per = x.per && !sub ? " por " + x.per : "";
+  let right = "<b>" + (tour ? "×10" : e.sr.split("/")[0].split(" ")[0]) + "</b>", hint = esc(fmtSR(e.sr)) + (e.note ? " · " + esc(e.note) : "");
+  let kgSug = g ? g.kg : "";
+  if (e.main && e.kg && !sub) { let k = e.kg; if (fails2(e.ex, ds)) { k = Math.round(k * 0.95 / 2.5) * 2.5; hint += " · 2 veces sin completar: baja a " + k + " kg"; } kgSug = k; right = "<b>" + k + "</b><small>kg</small>"; hint = esc(fmtSR(e.sr)) + " · " + k + " kg" + (e.note ? " · " + esc(e.note) : "") + (k !== e.kg ? " · −5%" : ""); }
+  else if (sub) hint += " · en vez de " + esc(x.n) + (g ? " · usa " + g.kg + " kg" : " · busca un peso con el que te sobren 2 reps");
+  else if (x.kg && !tour) hint += g ? " · " + (g.down ? "2 veces sin completar: baja a " + g.kg + " kg" : g.up ? "¡sube a " + g.kg + " kg!" : "usa " + g.kg + " kg") + per : " · empieza ligero";
   let inputs = "";
-  if (x.kg) inputs = '<div class="row" style="margin-top:10px;gap:8px" onclick="event.stopPropagation()"><input class="inp" style="width:96px;padding:8px 10px" inputmode="decimal" placeholder="' + (g ? g.kg : "kg") + '" value="' + esc(l.kg || "") + '" onchange="setKg(\'' + ds + "','" + e.ex + '\',this.value)"><span class="sm mu">kg' + (x.per ? " por " + x.per : "") + "</span>" +
-    (tour ? "" : '<button class="chip" style="margin-left:auto;' + (l.top ? "background:var(--lime);color:var(--limeInk)" : "") + '" onclick="toggleTop(\'' + ds + "','" + e.ex + '\')">' + (l.top ? "✓ Completé todo" : "¿Completaste todo?") + "</button>") + "</div>";
-  return '<div class="ex" style="display:block" onclick="tech(\'' + e.ex + '\')"><div class="row sp"><div><div class="n">' + x.n + '</div><div class="s">' + hint + "</div></div><div class=\"k\">" + right + "</div></div>" + inputs + "</div>";
+  if (x.kg || sub) inputs = '<div class="row" style="margin-top:10px;gap:8px;flex-wrap:wrap" onclick="event.stopPropagation()"><input class="inp" style="width:96px;padding:8px 10px" inputmode="decimal" placeholder="' + (kgSug || "kg") + '" value="' + esc(l.kg || "") + '" onchange="setKg(\'' + ds + "','" + id + '\',this.value)"><span class="sm mu">kg' + per + "</span>" +
+    (tour ? "" : '<button class="chip" style="margin-left:auto;' + (l.top ? "background:var(--lime);color:var(--limeInk)" : l.fail ? "background:rgba(255,107,94,.18);color:var(--red)" : "") + '" onclick="toggleTop(\'' + ds + "','" + id + '\')">' + (l.top ? "✓ Completé todo" : l.fail ? "✗ No completé" : "¿Completaste todo?") + "</button>") +
+    (l.fail ? '<input class="inp" style="flex:1;min-width:140px;padding:8px 10px" placeholder="Reps que salieron: 8, 8, 6" value="' + esc(l.reps || "") + '" onchange="setReps(\'' + ds + "','" + id + '\',this.value)">' : "") + "</div>";
+  return '<div class="ex" style="display:block" onclick="tech(\'' + e.ex + '\')"><div class="row sp"><div><div class="n">' + esc(sub || x.n) + (SUBS[e.ex] && !tour ? ' <a class="sm" style="font-weight:600;white-space:nowrap" onclick="event.stopPropagation();swapEx(\'' + ds + "','" + e.ex + '\')">↔ Cambiar</a>' : "") + '</div><div class="s">' + hint + '</div></div><div class="k">' + right + "</div></div>" + inputs + "</div>";
 }
 function setKg(ds, ex, v) { const n = parseFloat(String(v).replace(",", ".")); S.logs[ds] = S.logs[ds] || {}; S.logs[ds][ex] = Object.assign({}, S.logs[ds][ex], { kg: isNaN(n) ? "" : n }); save(); schedPush(); }
-function toggleTop(ds, ex) { S.logs[ds] = S.logs[ds] || {}; const l = S.logs[ds][ex] = S.logs[ds][ex] || {}; l.top = !l.top; save(); renderHoy(); schedPush(); }
+function toggleTop(ds, ex) {
+  S.logs[ds] = S.logs[ds] || {}; const l = S.logs[ds][ex] = S.logs[ds][ex] || {};
+  if (l.top) { l.top = false; l.fail = true; } else if (l.fail) { l.fail = false; l.reps = ""; } else l.top = true;
+  save(); renderHoy(); schedPush();
+}
 function doneHTML(s, ds) {
   const cur = S.done[ds];
   const isDone = s.key ? cur === s.key : !!cur;
